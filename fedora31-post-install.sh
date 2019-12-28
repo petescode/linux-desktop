@@ -1,5 +1,8 @@
 #!/bin/bash
 : '
+Notes:
+    - nVidia installation assumes non-legacy hardware
+    
 DEVELOPMENT:
     - should we use different package arrays for packages from default repos, tainted repos, proprietary, etc?
     - try using "dnf shell" to run all dnf commands at once
@@ -47,22 +50,24 @@ else
     flathub=false
 fi
 
-# nVidia repo (if needed)
-if [[ $(lspci | grep -i nvidia) ]]; then
-    echo "nVidia hardware detected!"
-fi
-
 
 ##### REMOVE UNWANTED PACKAGES
 
 
 ##### INSTALL PACKAGES
+# nVidia drivers (if needed)
+if [[ $(lspci | grep -i nvidia) ]]; then
+    echo -e "$(date +%T) nVidia hardware detected, installing nVidia drivers" >> $logfile
+    dnf install xorg-x11-drv-nvidia-390xx -y && \
+    echo -e "$(date +%T) finished installed nVidia 390 drivers from RPM Fusion repos" >> $logfile
+fi
+
+
 # requires RPM Fusion repos https://rpmfusion.org/Configuration/
 dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin -y
 dnf groupupdate sound-and-video -y
 
 # requires RPM Fusion tainted repos https://rpmfusion.org/Configuration/
-dnf install libdvdcss -y
 dnf install \*-firmware -y
 # firmware install causes errors, but apparently is a bug with package in one of tainted repos that has a report open for it; do not expect this to be an issue forever
 
