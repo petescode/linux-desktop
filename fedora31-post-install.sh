@@ -2,14 +2,14 @@
 : '
 Notes:
     - nVidia installation assumes non-legacy hardware
-    
+
 DEVELOPMENT:
     - should we use different package arrays for packages from default repos, tainted repos, proprietary, etc?
     - try using "dnf shell" to run all dnf commands at once
     - work on GNOME settings
     - add 3rd party repos
-    - install nvidia repo
-        - first see if nvidia is on the machine
+    - add PS1 variable
+    
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -52,6 +52,17 @@ fi
 
 
 ##### REMOVE UNWANTED PACKAGES
+declare -a unwanted_packages=(
+    "cheese"
+    "gnome-boxes"
+    "gnome-contacts"
+    "gnome-maps"
+    "rhythmbox"
+    "simple-scan"
+)
+
+# removes all packages with one command
+dnf remove $(echo ${unwanted_packages[@]}) -y
 
 
 ##### INSTALL PACKAGES
@@ -62,7 +73,6 @@ if [[ $(lspci | grep -i nvidia) ]]; then
     echo -e "$(date +%T) finished installed nVidia 390 drivers from RPM Fusion repos" >> $logfile
 fi
 
-
 # requires RPM Fusion repos https://rpmfusion.org/Configuration/
 dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin -y
 dnf groupupdate sound-and-video -y
@@ -70,7 +80,6 @@ dnf groupupdate sound-and-video -y
 # requires RPM Fusion tainted repos https://rpmfusion.org/Configuration/
 dnf install \*-firmware -y
 # firmware install causes errors, but apparently is a bug with package in one of tainted repos that has a report open for it; do not expect this to be an issue forever
-
 
 # array of packages to install from default repos
 declare -a packages=(
@@ -82,11 +91,20 @@ declare -a packages=(
     "perl-Image-ExifTool"
     "darktable"
     "arc-theme"
+    "icedtea-web"
+    "pinta"
+    "youtube-dl"
+    "p7zip"
+    "keepassxc"
+    "nmap"
+    "wireshark"
 )
 
 declare -a fusion_packages=(
     "fuse-exfat"
     "libdvdcss"
+    "vlc"
+    "python-vlc"
 )
 
 # installs all packages with one command
