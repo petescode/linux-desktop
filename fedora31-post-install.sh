@@ -2,7 +2,11 @@
 : '
 DEVELOPMENT:
     - should we use different package arrays for packages from default repos, tainted repos, proprietary, etc?
-
+    - try using "dnf shell" to run all dnf commands at once
+    - work on GNOME settings
+    - add 3rd party repos
+    - install nvidia repo
+        - first see if nvidia is on the machine
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -43,6 +47,14 @@ else
     flathub=false
 fi
 
+# nVidia repo (if needed)
+if [[ $(lspci | grep -i nvidia) ]]; then
+    echo "nVidia hardware detected!"
+fi
+
+
+##### REMOVE UNWANTED PACKAGES
+
 
 ##### INSTALL PACKAGES
 # requires RPM Fusion repos https://rpmfusion.org/Configuration/
@@ -62,11 +74,18 @@ declare -a packages=(
     "smartmontools"
     "gnome-tweaks"
     "dnf-utils"
+    "perl-Image-ExifTool"
+    "darktable"
+    "arc-theme"
 )
 
-for i in ${packages[@]}; do
-    echo $i
-done
+declare -a fusion_packages=(
+    "fuse-exfat"
+    "libdvdcss"
+)
+
+# installs all packages with one command
+dnf install $(echo ${packages[@]}) -y
 
 
 # install Flatpaks, if the Flathub repo installed correctly
