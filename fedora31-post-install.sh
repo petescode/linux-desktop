@@ -62,7 +62,8 @@ declare -a unwanted_packages=(
 )
 
 # removes all packages with one command
-dnf remove $(echo ${unwanted_packages[@]}) -y
+dnf remove $(echo ${unwanted_packages[@]}) -y && \
+echo -e "$(date +%T) removed the following packages:\n$(for i in ${unwanted_packages[@]}; do echo "  $i"; done)" >> $logfile
 
 
 ##### INSTALL PACKAGES
@@ -108,8 +109,12 @@ declare -a fusion_packages=(
 )
 
 # installs all packages with one command
-dnf install $(echo ${packages[@]}) -y
+dnf install $(echo ${packages[@]}) -y && \
+echo -e "$(date +%T) installed the following packages from default repos:\n$(for i in ${packages[@]}; do echo "  $i"; done)" >> $logfile
 
+# install RPM Fusion packages
+dnf install $(echo ${fusion_packages[@]}) -y && \
+echo -e "$(date +%T) installed the following packages from RPM Fusion repos:\n$(for i in ${fusion_packages[@]}; do echo "  $i"; done)" >> $logfile
 
 # install Flatpaks, if the Flathub repo installed correctly
 if [[ $flathub = true ]]; then
