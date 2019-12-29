@@ -10,6 +10,7 @@ DEVELOPMENT:
     - add PS1 variable
     - move logfile to /var/log/
     - add firmware to one-liner install
+    - should all repository install fails be fatal? if not theres not a good way to ensure the packages were really installed
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -47,10 +48,11 @@ fi
 # Flatpak repo
 if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
     echo -e "$(date +%T) installed Flathub repository" >> $logfile
-    flathub=true
+    #flathub=true
 else
-    echo -e "$(date +%T) ERROR: failed installing Flathub repository - continuing without it" >> $logfile
-    flathub=false
+    echo -e "$(date +%T) ERROR (FATAL): failed installing Flathub repository - exiting" >> $logfile
+    #flathub=false
+    exit 1
 fi
 
 # Microsoft Visual Studio Code repo https://code.visualstudio.com/docs/setup/linux
@@ -59,11 +61,10 @@ rpm --import https://packages.microsoft.com/keys/microsoft.asc && echo -e "$(dat
 if echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo; then
     echo -e "$(date +%T) installed Visual Studio Code repository" >> $logfile
 else
-    echo -e "$(date +%T) ERROR: failed installing Visual Studio Code repository - continuing without it" >> $logfile
+    echo -e "$(date +%T) ERROR (FATAL): failed installing Visual Studio Code repository - exiting" >> $logfile
+    exit 1
 fi
 
-
-#dnf check-update
 
 # Google Chrome repo
 
@@ -152,6 +153,7 @@ fi
 declare -a proprietary_packages=(
     "code"
 )
+# remember to turn telemetry off (log msg)
 
 # installs all packages with one command
 dnf install $(echo ${packages[@]} ${fusion_packages[@]} ${proprietary_packages[@]}) -y && \
@@ -165,12 +167,24 @@ dnf groupinstall $(echo ${group_packages[@]}) -y && \
 echo -e "$(date +%T) installed the following package groups:\n$(for i in "${group_packages[@]}"; do echo "  $i"; done)" >> $logfile
 
 # install Flatpaks, if the Flathub repo installed correctly
-if [[ $flathub = true ]]; then
-    flatpak install flathub com.discordapp.Discord -y && echo -e "$(date +%T) installed Discord Flatpak" >> $logfile
-    flatpak install flathub com.slack.Slack -y && echo -e "$(date +%T) installed Slack Flatpak" >> $logfile
+#if [[ $flathub = true ]]; then
+#    flatpak install flathub com.discordapp.Discord -y && echo -e "$(date +%T) installed Discord Flatpak" >> $logfile
+#    flatpak install flathub com.slack.Slack -y && echo -e "$(date +%T) installed Slack Flatpak" >> $logfile
+#else
+#    echo -e "$(date +%T) could not install Discord Flatpak due to no Flathub repo" >> $logfile
+#    echo -e "$(date +%T) could not install Slack Flatpak due to no Flathub repo" >> $logfile
+#fi
+
+if flatpak install flathub com.discordapp.Discord -y; then
+    echo -e "$(date +%T) installed Discord Flatpak" >> $logfile
 else
-    echo -e "$(date +%T) could not install Discord Flatpak due to no Flathub repo" >> $logfile
-    echo -e "$(date +%T) could not install Slack Flatpak due to no Flathub repo" >> $logfile
+    echo -e "$(date +%T) ERROR: failed installing Discord Flatpak" >> $logfile
+fi
+
+if flatpak install flathub com.slack.Slack -y; then
+    echo -e "$(date +%T) installed Slack Flatpak" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: failed installing Slack Flatpak" >> $logfile
 fi
 
 stop=$(date +%s)
