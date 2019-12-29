@@ -136,19 +136,13 @@ declare -a group_packages=(
     "--with-optional virtualization"
 )
 
-
 # installs all packages with one command
 dnf install $(echo ${packages[@]} ${fusion_packages[@]}) -y && \
-#echo -e "$(date +%T) installed the following packages from default repos:\n$(for i in ${packages[@]}; do echo "  $i"; done)" >> $logfile
 echo -e "$(date +%T) installed the following packages:\n$(for i in ${packages[@]}; do echo "  $i"; done)\n$(for i in ${fusion_packages[@]}; do echo "  $i"; done)" >> $logfile
-
-# install RPM Fusion packages
-#dnf install $(echo ${fusion_packages[@]}) -y && \
-#echo -e "$(date +%T) installed the following packages from RPM Fusion repos:\n$(for i in ${fusion_packages[@]}; do echo "  $i"; done)" >> $logfile
 
 # install group packages
 dnf groupinstall $(echo ${group_packages[@]}) -y && \
-echo -e "$(date +%T) installed the following package groups:\n$(for i in ${group_packages[@]}; do echo "  $i"; done)" >> $logfile
+echo -e "$(date +%T) installed the following package groups:\n$(for i in "${group_packages[@]}"; do echo "  $i"; done)" >> $logfile
 
 # install Flatpaks, if the Flathub repo installed correctly
 if [[ $flathub = true ]]; then
@@ -163,6 +157,8 @@ else
 fi
 
 stop=$(date +%s)
-runtime=$((start-stop))
+runtime=$((stop-start))
 echo -e "SCRIPT END: $(date +%c)" >> $logfile
-echo -e "RUN TIME: $runtime seconds" >> $logfile
+echo -e "RUN TIME: $runtime seconds (~$(($runtime / 60)) minutes)" >> $logfile
+clear
+cat $logfile
