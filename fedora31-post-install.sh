@@ -7,9 +7,14 @@ Notes:
 
 DEVELOPMENT:
     - work on GNOME settings
+        - keyboard shortcut for terminal
+        - move window buttons to left
+        - set theme (arc-theme)
+        - Search & Preview --> Thumbnail --> size > 60M
+        - sort folders before files
     - add PS1 variable
-    - add firmware to one-liner install
-        - with testing, this causes the rest of the package installations to have an error code and therefore not write to log; need to test with fresh install
+    - LS_COLORS
+    - desired hostname (user input)
 '
 
 if [[ $(id -u) -ne 0 ]]; then
