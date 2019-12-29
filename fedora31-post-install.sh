@@ -12,6 +12,7 @@ DEVELOPMENT:
     - clear screen
     - total time ran calculator
     - echo to screen where the log file is?
+    - move logfile to /var/log/
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -19,11 +20,13 @@ if [[ $(id -u) -ne 0 ]]; then
     exit 1
 fi
 
-clear
 logfile="/root/post-install.log"
+
 
 ##### START LOG FILE
 echo -e "SCRIPT START: $(date +%c)" > $logfile
+start=$(date +%s)
+clear
 
 
 ##### INSTALL REPOS
@@ -146,5 +149,7 @@ else
     echo -e "$(date +%T) could not install Slack Flatpak due to no Flathub repo" >> $logfile
 fi
 
-
-echo -e "SCRIPT END: $(date +%c)" > $logfile
+stop=$(date +%s)
+runtime=$((start-stop))
+echo -e "SCRIPT END: $(date +%c)" >> $logfile
+echo -e "RUN TIME: $runtime seconds" >> $logfile
