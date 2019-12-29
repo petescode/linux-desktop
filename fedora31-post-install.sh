@@ -9,7 +9,9 @@ DEVELOPMENT:
     - work on GNOME settings
     - add 3rd party repos
     - add PS1 variable
-    
+    - clear screen
+    - total time ran calculator
+    - echo to screen where the log file is?
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -17,6 +19,7 @@ if [[ $(id -u) -ne 0 ]]; then
     exit 1
 fi
 
+clear
 logfile="/root/post-install.log"
 
 ##### START LOG FILE
@@ -64,9 +67,15 @@ declare -a unwanted_packages=(
 # removes all packages with one command
 dnf remove $(echo ${unwanted_packages[@]}) -y && \
 echo -e "$(date +%T) removed the following packages:\n$(for i in ${unwanted_packages[@]}; do echo "  $i"; done)" >> $logfile
+dnf autoremove -y
+dnf clean all
 
 
-##### INSTALL PACKAGES
+##### UPDATE EXISTING PACKAGES
+dnf update -y
+
+
+##### INSTALL NEW PACKAGES
 # nVidia drivers (if needed)
 if [[ $(lspci | grep -i nvidia) ]]; then
     echo -e "$(date +%T) nVidia hardware detected, installing nVidia drivers" >> $logfile
@@ -82,7 +91,7 @@ dnf groupupdate sound-and-video -y
 dnf install \*-firmware -y
 # firmware install causes errors, but apparently is a bug with package in one of tainted repos that has a report open for it; do not expect this to be an issue forever
 
-# array of packages to install from default repos
+# array of packages to install from repos
 declare -a packages=(
     "vim"
     "terminator"
@@ -108,6 +117,11 @@ declare -a fusion_packages=(
     "python-vlc"
 )
 
+declare -a group_packages=(
+    "--with-optional virtualization"
+)
+
+
 # installs all packages with one command
 dnf install $(echo ${packages[@]}) -y && \
 echo -e "$(date +%T) installed the following packages from default repos:\n$(for i in ${packages[@]}; do echo "  $i"; done)" >> $logfile
@@ -115,6 +129,10 @@ echo -e "$(date +%T) installed the following packages from default repos:\n$(for
 # install RPM Fusion packages
 dnf install $(echo ${fusion_packages[@]}) -y && \
 echo -e "$(date +%T) installed the following packages from RPM Fusion repos:\n$(for i in ${fusion_packages[@]}; do echo "  $i"; done)" >> $logfile
+
+# install group packages
+dnf groupinstall $(echo ${group_packages[@]}) -y && \
+echo -e "$(date +%T) installed the following package groups:\n$(for i in ${group_packages[@]}; do echo "  $i"; done)" >> $logfile
 
 # install Flatpaks, if the Flathub repo installed correctly
 if [[ $flathub = true ]]; then
@@ -127,3 +145,6 @@ else
     echo -e "$(date +%T) could not install Discord Flatpak due to no Flathub repo" >> $logfile
     echo -e "$(date +%T) could not install Slack Flatpak due to no Flathub repo" >> $logfile
 fi
+
+
+echo -e "SCRIPT END: $(date +%c)" > $logfile
