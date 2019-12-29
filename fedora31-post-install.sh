@@ -175,13 +175,21 @@ declare -a proprietary_packages=(
     "google-chrome-stable"
 )
 
-# installs all packages with one command
-# THIS needs to be updated to have a fail error message
-dnf install $(echo ${packages[@]} ${fusion_packages[@]} ${proprietary_packages[@]}) -y && \
-echo -e "$(date +%T) installed the following packages: 
+# install each package from each array in one command
+if dnf install $(echo ${packages[@]} ${fusion_packages[@]} ${proprietary_packages[@]}) -y; then
+    echo -e "$(date +%T) installed the following packages:
 $(for i in ${packages[@]}; do echo "  $i"; done) \
-\n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
-\n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" >> $logfile
+    \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
+    \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" >> $logfile
+else
+    # something failed
+    echo -e "$(date +%T) ERROR: problems occurred when trying to install the following packages:
+$(for i in ${packages[@]}; do echo "  $i"; done) \
+    \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
+    \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" >> $logfile
+    
+    echo -e "\`-------------> check /var/log/dnf.log for more details" >> $logfile
+fi
 
 # install group packages
 dnf groupinstall $(echo ${group_packages[@]}) -y && \
