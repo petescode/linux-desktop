@@ -2,6 +2,8 @@
 : '
 Notes:
     - nVidia installation assumes non-legacy hardware
+    - nVidia drivers install from RPM Fusion repos - not fedora-workstation-repositories
+    - For more info on Fedora Workstation Repositories (Chrome lives here): https://fedoraproject.org/wiki/Workstation/Third_Party_Software_Repositories
 
 DEVELOPMENT:
     - try using "dnf shell" to run all dnf commands at once
@@ -10,7 +12,6 @@ DEVELOPMENT:
     - add PS1 variable
     - move logfile to /var/log/
     - add firmware to one-liner install
-    - should all repository install fails be fatal? if not theres not a good way to ensure the packages were really installed
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -48,10 +49,8 @@ fi
 # Flatpak repo
 if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
     echo -e "$(date +%T) installed Flathub repository" >> $logfile
-    #flathub=true
 else
     echo -e "$(date +%T) ERROR (FATAL): failed installing Flathub repository - exiting" >> $logfile
-    #flathub=false
     exit 1
 fi
 
@@ -60,15 +59,20 @@ rpm --import https://packages.microsoft.com/keys/microsoft.asc && echo -e "$(dat
 
 if echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo; then
     echo -e "$(date +%T) installed Visual Studio Code repository" >> $logfile
+    echo -e "    \`-----> remember to disable telemetry options once installed" >> $logfile
 else
     echo -e "$(date +%T) ERROR (FATAL): failed installing Visual Studio Code repository - exiting" >> $logfile
     exit 1
 fi
 
-
-# Google Chrome repo
-
-
+# Google Chrome repo 
+if dnf install fedora-workstation-repositories -y && dnf config-manager --set-enabled google-chrome; then
+    echo -e "$(date +%T) installed Fedora Workstation/Third Party repositories" >> $logfile
+    echo -e "$(date +%T) set Google Chrome repo as enabled" >> $logfile
+else
+    echo -e "$(date +%T) ERROR (FATAL): failed installing Fedora Workstation/Third Party repositories - exiting" >> $logfile
+    exit 1
+fi
 
 
 ##### REMOVE UNWANTED PACKAGES
@@ -152,8 +156,8 @@ fi
 
 declare -a proprietary_packages=(
     "code"
+    "google-chrome-stable"
 )
-# remember to turn telemetry off (log msg)
 
 # installs all packages with one command
 dnf install $(echo ${packages[@]} ${fusion_packages[@]} ${proprietary_packages[@]}) -y && \
@@ -166,15 +170,7 @@ $(for i in ${packages[@]}; do echo "  $i"; done) \
 dnf groupinstall $(echo ${group_packages[@]}) -y && \
 echo -e "$(date +%T) installed the following package groups:\n$(for i in "${group_packages[@]}"; do echo "  $i"; done)" >> $logfile
 
-# install Flatpaks, if the Flathub repo installed correctly
-#if [[ $flathub = true ]]; then
-#    flatpak install flathub com.discordapp.Discord -y && echo -e "$(date +%T) installed Discord Flatpak" >> $logfile
-#    flatpak install flathub com.slack.Slack -y && echo -e "$(date +%T) installed Slack Flatpak" >> $logfile
-#else
-#    echo -e "$(date +%T) could not install Discord Flatpak due to no Flathub repo" >> $logfile
-#    echo -e "$(date +%T) could not install Slack Flatpak due to no Flathub repo" >> $logfile
-#fi
-
+# install Flatpaks
 if flatpak install flathub com.discordapp.Discord -y; then
     echo -e "$(date +%T) installed Discord Flatpak" >> $logfile
 else
