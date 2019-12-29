@@ -19,17 +19,19 @@ if [[ $(id -u) -ne 0 ]]; then
     exit 1
 fi
 
-logfile="/root/post-install.log"
+logfile="/var/log/fedora31-gnome-post-install-script.log"
 
 
 ##### START LOG FILE
 echo -e "SCRIPT START: $(date +%c)" > $logfile
 start=$(date +%s)
-clear
 
 
 ##### INSTALL REPOS
 # RPM Fusion free and nonfree https://rpmfusion.org/Configuration/
+clear
+echo -e "\nINSTALLING REPOSITORIES\n"
+
 if dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
 https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y; then
     echo -e "$(date +%T) installed RPM Fusion free and nonfree repositories" >> $logfile
@@ -76,6 +78,9 @@ fi
 
 
 ##### REMOVE UNWANTED PACKAGES
+clear
+echo -e "\nREMOVING UNWANTED PACKAGES\n"
+
 declare -a unwanted_packages=(
     "cheese"
     "gnome-boxes"
@@ -93,10 +98,24 @@ dnf clean all
 
 
 ##### UPDATE EXISTING PACKAGES
+clear
+echo -e "\nUPDATE INSTALLED PACKAGE VERSIONS\n"
 dnf update -y
 
 
+##### UPDATE/INSTALL MULTIMEDIA CODECS
+clear
+echo -e "\nUPDATE & INSTALL MULTIMEDIA CODECS\n"
+
+# requires RPM Fusion repos https://rpmfusion.org/Configuration/
+dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin -y
+dnf groupupdate sound-and-video -y
+
+
 ##### INSTALL NEW PACKAGES
+clear
+echo -e "\nINSTALL NEW PACKAGES\n"
+
 # nVidia drivers (if needed)
 if [[ $(lspci | grep -i nvidia) ]]; then
     echo -e "$(date +%T) nVidia hardware detected, marking drivers for installation" >> $logfile
@@ -105,10 +124,6 @@ if [[ $(lspci | grep -i nvidia) ]]; then
     #echo -e "$(date +%T) finished installed nVidia 390 drivers from RPM Fusion repos" >> $logfile
     nvidia=true
 fi
-
-# requires RPM Fusion repos https://rpmfusion.org/Configuration/
-dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin -y
-dnf groupupdate sound-and-video -y
 
 # requires RPM Fusion tainted repos https://rpmfusion.org/Configuration/
 dnf install \*-firmware -y
