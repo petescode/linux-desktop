@@ -81,9 +81,11 @@ dnf update -y
 ##### INSTALL NEW PACKAGES
 # nVidia drivers (if needed)
 if [[ $(lspci | grep -i nvidia) ]]; then
-    echo -e "$(date +%T) nVidia hardware detected, installing nVidia drivers" >> $logfile
-    dnf install xorg-x11-drv-nvidia-390xx -y && \
-    echo -e "$(date +%T) finished installed nVidia 390 drivers from RPM Fusion repos" >> $logfile
+    echo -e "$(date +%T) nVidia hardware detected, marking drivers for installation" >> $logfile
+    #echo -e "$(date +%T) nVidia hardware detected, installing nVidia drivers" >> $logfile
+    #dnf install xorg-x11-drv-nvidia-390xx -y && \
+    #echo -e "$(date +%T) finished installed nVidia 390 drivers from RPM Fusion repos" >> $logfile
+    nvidia=true
 fi
 
 # requires RPM Fusion repos https://rpmfusion.org/Configuration/
@@ -113,12 +115,22 @@ declare -a packages=(
     "wireshark"
 )
 
-declare -a fusion_packages=(
-    "fuse-exfat"
-    "libdvdcss"
-    "vlc"
-    "python-vlc"
-)
+if [[ $nvidia = true ]]; then
+    declare -a fusion_packages=(
+        "fuse-exfat"
+        "libdvdcss"
+        "vlc"
+        "python-vlc"
+        "xorg-x11-drv-nvidia-390xx"
+    )
+else
+    declare -a fusion_packages=(
+        "fuse-exfat"
+        "libdvdcss"
+        "vlc"
+        "python-vlc"
+    )
+fi
 
 declare -a group_packages=(
     "--with-optional virtualization"
@@ -126,12 +138,13 @@ declare -a group_packages=(
 
 
 # installs all packages with one command
-dnf install $(echo ${packages[@]}) -y && \
-echo -e "$(date +%T) installed the following packages from default repos:\n$(for i in ${packages[@]}; do echo "  $i"; done)" >> $logfile
+dnf install $(echo ${packages[@]} ${fusion_packages[@]}) -y && \
+#echo -e "$(date +%T) installed the following packages from default repos:\n$(for i in ${packages[@]}; do echo "  $i"; done)" >> $logfile
+echo -e "$(date +%T) installed the following packages:\n$(for i in ${packages[@]}; do echo "  $i"; done)\n$(for i in ${fusion_packages[@]}; do echo "  $i"; done)" >> $logfile
 
 # install RPM Fusion packages
-dnf install $(echo ${fusion_packages[@]}) -y && \
-echo -e "$(date +%T) installed the following packages from RPM Fusion repos:\n$(for i in ${fusion_packages[@]}; do echo "  $i"; done)" >> $logfile
+#dnf install $(echo ${fusion_packages[@]}) -y && \
+#echo -e "$(date +%T) installed the following packages from RPM Fusion repos:\n$(for i in ${fusion_packages[@]}; do echo "  $i"; done)" >> $logfile
 
 # install group packages
 dnf groupinstall $(echo ${group_packages[@]}) -y && \
