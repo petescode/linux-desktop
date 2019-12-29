@@ -6,12 +6,10 @@ Notes:
     - For more info on Fedora Workstation Repositories (Chrome lives here): https://fedoraproject.org/wiki/Workstation/Third_Party_Software_Repositories
 
 DEVELOPMENT:
-    - try using "dnf shell" to run all dnf commands at once
     - work on GNOME settings
-    - add 3rd party repos
     - add PS1 variable
-    - move logfile to /var/log/
     - add firmware to one-liner install
+        - with testing, this causes the rest of the package installations to have an error code and therefore not write to log; need to test with fresh install
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -30,7 +28,7 @@ start=$(date +%s)
 ##### INSTALL REPOS
 # RPM Fusion free and nonfree https://rpmfusion.org/Configuration/
 clear
-echo -e "\nINSTALLING REPOSITORIES\n"
+echo -e "\nINSTALL NEW REPOSITORIES\n"
 
 if dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
 https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y; then
@@ -79,7 +77,8 @@ fi
 
 ##### REMOVE UNWANTED PACKAGES
 clear
-echo -e "\nREMOVING UNWANTED PACKAGES\n"
+echo -e "\nREMOVE UNWANTED PACKAGES\n"
+sleep 1
 
 declare -a unwanted_packages=(
     "cheese"
@@ -99,7 +98,7 @@ dnf clean all
 
 ##### UPDATE EXISTING PACKAGES
 clear
-echo -e "\nUPDATE INSTALLED PACKAGE VERSIONS\n"
+echo -e "\nUPDATE EXISTING PACKAGES\n"
 dnf update -y
 
 
@@ -112,6 +111,15 @@ dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKi
 dnf groupupdate sound-and-video -y
 
 
+##### INSTALL FIRMWARE UPDATES
+clear
+echo -e "\nINSTALL FIRMWARE UPDATES\n"
+
+# requires RPM Fusion tainted repos https://rpmfusion.org/Configuration/
+dnf install \*-firmware -y
+# firmware install causes errors, but apparently is a bug with package in one of tainted repos that has a report open for it; do not expect this to be an issue forever
+
+
 ##### INSTALL NEW PACKAGES
 clear
 echo -e "\nINSTALL NEW PACKAGES\n"
@@ -119,15 +127,8 @@ echo -e "\nINSTALL NEW PACKAGES\n"
 # nVidia drivers (if needed)
 if [[ $(lspci | grep -i nvidia) ]]; then
     echo -e "$(date +%T) nVidia hardware detected, marking drivers for installation" >> $logfile
-    #echo -e "$(date +%T) nVidia hardware detected, installing nVidia drivers" >> $logfile
-    #dnf install xorg-x11-drv-nvidia-390xx -y && \
-    #echo -e "$(date +%T) finished installed nVidia 390 drivers from RPM Fusion repos" >> $logfile
     nvidia=true
 fi
-
-# requires RPM Fusion tainted repos https://rpmfusion.org/Configuration/
-dnf install \*-firmware -y
-# firmware install causes errors, but apparently is a bug with package in one of tainted repos that has a report open for it; do not expect this to be an issue forever
 
 # array of packages to install from repos
 declare -a packages=(
@@ -175,6 +176,7 @@ declare -a proprietary_packages=(
 )
 
 # installs all packages with one command
+# THIS needs to be updated to have a fail error message
 dnf install $(echo ${packages[@]} ${fusion_packages[@]} ${proprietary_packages[@]}) -y && \
 echo -e "$(date +%T) installed the following packages: 
 $(for i in ${packages[@]}; do echo "  $i"; done) \
