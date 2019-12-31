@@ -13,7 +13,6 @@ Notes:
 DEVELOPMENT:
     - work on GNOME settings
         - keyboard shortcut for terminal
-        - move window buttons to left
         - set theme (arc-theme)
         - Search & Preview --> Thumbnail --> size > 60M
         - sort folders before files
@@ -224,20 +223,35 @@ fi
 # using here-doc to create new file with content
 
 # enable min,max window buttons & set position to the left
-cat > /etc/dconf/db/local.d/00-button-settings << EOF
+gnome_buttons="/etc/dconf/db/local.d/00-button-settings"
+cat > $gnome_buttons << EOF
 # Custom default GNOME settings window button layout
 [org/gnome/desktop/wm/preferences]
 button-layout='close,minimize,maximize:'
-EOF && \
-echo -e "$(date +%T) enabled all window buttons and set to the left position" >> $logfile
+EOF
+
+# testing for success with here-docs is tricky
+if [[ -f $gnome_buttons ]]; then
+    echo -e "$(date +%T) GNOME: enabled all window buttons and set to the left position" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $gnome_buttons but did not succeed" >> $logfile
+fi
+
 
 # setting default "favorites" to the gnome shell dash (the sidebar)
-cat > /etc/dconf/db/local.d/00-favorite-apps << EOF
+gnome_fav_apps="/etc/dconf/db/local.d/00-favorite-apps"
+cat > $gnome_fav_apps << EOF
 # Custom default GNOME settings for favorite apps in the sidebar (GNOME Shell Dash)
 [org/gnome/shell]
 favorite-apps = ['firefox.desktop', 'org.gnome.Nautilus.desktop', 'terminator.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Calculator.desktop']
-EOF && \
-echo -e "$(date +%T) set new default favorite applications in the sidebar" >> $logfile
+EOF
+
+# success test
+if [[ -f $gnome_fav_apps ]]; then
+    echo -e "$(date +%T) GNOME: set custom list of favorite apps in sidebar" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $gnome_fav_apps but did not succeed" >> $logfile
+fi
 
 
 dconf update
