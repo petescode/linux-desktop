@@ -4,6 +4,11 @@ Notes:
     - nVidia installation assumes non-legacy hardware
     - nVidia drivers install from RPM Fusion repos - not fedora-workstation-repositories
     - For more info on Fedora Workstation Repositories (Chrome lives here): https://fedoraproject.org/wiki/Workstation/Third_Party_Software_Repositories
+    - GNOME default setings:
+        https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/desktop_migration_and_administration_guide/custom-default-values-system-settings
+    - GNOME sidebar defaults:
+        https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/using_the_desktop_environment_in_rhel_8/customizing-default-favorite-applications_starting-using-gnome#setting-the-same-favorite-applications-for-all-users_customizing-default-favorite-applications
+
 
 DEVELOPMENT:
     - work on GNOME settings
@@ -141,6 +146,7 @@ declare -a packages=(
     "terminator"
     "smartmontools"
     "gnome-tweaks"
+    "dconf-editor"
     "dnf-utils"
     "perl-Image-ExifTool"
     "darktable"
@@ -218,11 +224,21 @@ fi
 # using here-doc to create new file with content
 
 # enable min,max window buttons & set position to the left
-cat > /etc/dconf/db/local.d/00-local-settings << EOF
-# Custom default gnome settings for all local users
+cat > /etc/dconf/db/local.d/00-button-settings << EOF
+# Custom default GNOME settings window button layout
 [org/gnome/desktop/wm/preferences]
 button-layout='close,minimize,maximize:'
-EOF
+EOF && \
+echo -e "$(date +%T) enabled all window buttons and set to the left position" >> $logfile
+
+# setting default "favorites" to the gnome shell dash (the sidebar)
+cat > /etc/dconf/db/local.d/00-favorite-apps << EOF
+# Custom default GNOME settings for favorite apps in the sidebar (GNOME Shell Dash)
+[org/gnome/shell]
+favorite-apps = ['firefox.desktop', 'org.gnome.Nautilus.desktop', 'terminator.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Calculator.desktop']
+EOF && \
+echo -e "$(date +%T) set new default favorite applications in the sidebar" >> $logfile
+
 
 dconf update
 
