@@ -213,9 +213,26 @@ else
     echo -e "$(date +%T) ERROR: failed installing Slack Flatpak" >> $logfile
 fi
 
+
+##### SET DEFAULT GNOME SETTINGS
+# using here-doc to create new file with content
+
+# enable min,max window buttons & set position to the left
+cat > /etc/dconf/db/local.d/00-local-settings << EOF
+# Custom default gnome settings for all local users
+[org/gnome/desktop/wm/preferences]
+button-layout='close,minimize,maximize:'
+EOF
+
+dconf update
+
+
+##### REPORTING
 stop=$(date +%s)
 runtime=$((stop-start))
 echo -e "SCRIPT END: $(date +%c)" >> $logfile
 echo -e "RUN TIME: $runtime seconds (~$(($runtime / 60)) minutes)" >> $logfile
 clear
 cat $logfile
+
+# add reboot
