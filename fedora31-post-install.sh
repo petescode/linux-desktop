@@ -237,7 +237,6 @@ else
     echo -e "$(date +%T) ERROR: attempted to create file $gnome_buttons but did not succeed" >> $logfile
 fi
 
-
 # setting default "favorites" to the gnome shell dash (the sidebar)
 gnome_fav_apps="/etc/dconf/db/local.d/00-favorite-apps"
 cat > $gnome_fav_apps << EOF
@@ -253,7 +252,6 @@ else
     echo -e "$(date +%T) ERROR: attempted to create file $gnome_fav_apps but did not succeed" >> $logfile
 fi
 
-
 dconf update
 
 
@@ -265,4 +263,17 @@ echo -e "RUN TIME: $runtime seconds (~$(($runtime / 60)) minutes)" >> $logfile
 clear
 cat $logfile
 
-# add reboot
+
+##### REBOOT
+echo
+read -p "Press ENTER to proceed with reboot"
+echo -e "\nLog file saved to: $logfile"
+echo -e "\nRebooting in 5 seconds..."
+tick=5
+while [[ $tick -le 5 && $tick -ge 0 ]]; do
+    echo $tick
+    sleep 1
+    ((tick-=1))
+done
+
+systemctl reboot
