@@ -141,22 +141,23 @@ fi
 
 # array of packages to install from repos
 declare -a packages=(
-    "vim"
-    "terminator"
-    "smartmontools"
-    "gnome-tweaks"
+    "arc-theme"
+    "darktable"
     "dconf-editor"
     "dnf-utils"
-    "perl-Image-ExifTool"
-    "darktable"
-    "arc-theme"
+    "gnome-tweaks"
     "icedtea-web"
-    "pinta"
-    "youtube-dl"
-    "p7zip"
     "keepassxc"
     "nmap"
+    "papirus-icon-theme"
+    "perl-Image-ExifTool"
+    "pinta"
+    "p7zip"
+    "smartmontools"
+    "terminator"
+    "vim"
     "wireshark"
+    "youtube-dl"
 )
 
 declare -a group_packages=(
@@ -167,16 +168,16 @@ if [[ $nvidia = true ]]; then
     declare -a fusion_packages=(
         "fuse-exfat"
         "libdvdcss"
-        "vlc"
         "python-vlc"
+        "vlc"
         "xorg-x11-drv-nvidia-390xx"
     )
 else
     declare -a fusion_packages=(
         "fuse-exfat"
         "libdvdcss"
-        "vlc"
         "python-vlc"
+        "vlc"
     )
 fi
 
@@ -229,7 +230,6 @@ cat > $gnome_buttons << EOF
 [org/gnome/desktop/wm/preferences]
 button-layout='close,minimize,maximize:'
 EOF
-
 # testing for success with here-docs is tricky
 if [[ -f $gnome_buttons ]]; then
     echo -e "$(date +%T) GNOME: enabled all window buttons and set to the left position" >> $logfile
@@ -244,12 +244,39 @@ cat > $gnome_fav_apps << EOF
 [org/gnome/shell]
 favorite-apps = ['firefox.desktop', 'org.gnome.Nautilus.desktop', 'terminator.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Calculator.desktop']
 EOF
-
 # success test
 if [[ -f $gnome_fav_apps ]]; then
     echo -e "$(date +%T) GNOME: set custom list of favorite apps in sidebar" >> $logfile
 else
     echo -e "$(date +%T) ERROR: attempted to create file $gnome_fav_apps but did not succeed" >> $logfile
+fi
+
+# set Papirus icon theme to system default
+icon_theme="/etc/dconf/db/local.d/00-icon-theme"
+cat > $icon_theme << EOF
+# Custom default GNOME settings for 3rd party icon theme
+[org/gnome/desktop/interface]
+icon-theme="Papirus"
+EOF
+# success test
+if [[ -f $icon_theme ]]; then
+    echo -e "$(date +%T) GNOME: set default icon theme to Papirus" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $icon_theme but did not succeed" >> $logfile
+fi
+
+# set Arc-Darker GTK theme to system default
+gtk_theme="/etc/dconf/db/local.d/00-gtk-theme"
+cat > $gtk_theme << EOF
+# Custom default GNOME settings for GTK theme
+[org/gnome/desktop/interface]
+gtk-theme="Arc-Darker"
+EOF
+# success test
+if [[ -f $gtk_theme ]]; then
+    echo -e "$(date +%T) GNOME: set default GTK theme to Arc-Darker" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $gtk_theme but did not succeed" >> $logfile
 fi
 
 dconf update
