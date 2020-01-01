@@ -13,9 +13,9 @@ Notes:
 DEVELOPMENT:
     - work on GNOME settings
         - keyboard shortcut for terminal
-        - set theme (arc-theme)
         - Search & Preview --> Thumbnail --> size > 60M
         - sort folders before files
+    - ubuntu fonts
     - add PS1 variable
     - LS_COLORS
     - desired hostname (user input)
@@ -280,6 +280,26 @@ else
 fi
 
 dconf update
+
+
+##### CUSTOMIZE TERMINAL SETTINGS
+# create custom .sh scripts in /etc/profile.d which will be sourced automatically
+
+colors_file="/etc/profile.d/bash-customizations.sh"
+cat > $colors_file << EOF
+#!/bin/bash
+# Created by Fedora post-install script
+# Custom system-wide modifications to environment variables
+
+if [ \$(id -u) -eq 0 ]; then
+    # root
+    PS1='\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;38;5;33m\]\W\[\033[00m\]# '
+else
+    # regular user
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;38;5;33m\]\W\[\033[00m\]$ '
+fi
+
+EOF
 
 
 ##### REPORTING
