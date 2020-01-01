@@ -4,14 +4,18 @@ Notes:
     - nVidia installation assumes non-legacy hardware
     - nVidia drivers install from RPM Fusion repos - not fedora-workstation-repositories
     - For more info on Fedora Workstation Repositories (Chrome lives here): https://fedoraproject.org/wiki/Workstation/Third_Party_Software_Repositories
+    - GNOME default setings:
+        https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/desktop_migration_and_administration_guide/custom-default-values-system-settings
+    - GNOME sidebar defaults:
+        https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/using_the_desktop_environment_in_rhel_8/customizing-default-favorite-applications_starting-using-gnome#setting-the-same-favorite-applications-for-all-users_customizing-default-favorite-applications
+
 
 DEVELOPMENT:
     - work on GNOME settings
         - keyboard shortcut for terminal
-        - move window buttons to left
-        - set theme (arc-theme)
         - Search & Preview --> Thumbnail --> size > 60M
         - sort folders before files
+    - ubuntu fonts
     - add PS1 variable
     - LS_COLORS
     - desired hostname (user input)
@@ -137,21 +141,23 @@ fi
 
 # array of packages to install from repos
 declare -a packages=(
-    "vim"
-    "terminator"
-    "smartmontools"
-    "gnome-tweaks"
-    "dnf-utils"
-    "perl-Image-ExifTool"
-    "darktable"
     "arc-theme"
+    "darktable"
+    "dconf-editor"
+    "dnf-utils"
+    "gnome-tweaks"
     "icedtea-web"
-    "pinta"
-    "youtube-dl"
-    "p7zip"
     "keepassxc"
     "nmap"
+    "papirus-icon-theme"
+    "perl-Image-ExifTool"
+    "pinta"
+    "p7zip"
+    "smartmontools"
+    "terminator"
+    "vim"
     "wireshark"
+    "youtube-dl"
 )
 
 declare -a group_packages=(
@@ -162,16 +168,16 @@ if [[ $nvidia = true ]]; then
     declare -a fusion_packages=(
         "fuse-exfat"
         "libdvdcss"
-        "vlc"
         "python-vlc"
+        "vlc"
         "xorg-x11-drv-nvidia-390xx"
     )
 else
     declare -a fusion_packages=(
         "fuse-exfat"
         "libdvdcss"
-        "vlc"
         "python-vlc"
+        "vlc"
     )
 fi
 
@@ -213,9 +219,108 @@ else
     echo -e "$(date +%T) ERROR: failed installing Slack Flatpak" >> $logfile
 fi
 
+
+##### SET DEFAULT GNOME SETTINGS
+# using here-doc to create new file with content
+
+# enable min,max window buttons & set position to the left
+gnome_buttons="/etc/dconf/db/local.d/00-button-settings"
+cat > $gnome_buttons << EOF
+# Custom default GNOME settings window button layout
+[org/gnome/desktop/wm/preferences]
+button-layout='close,minimize,maximize:'
+EOF
+# testing for success with here-docs is tricky
+if [[ -f $gnome_buttons ]]; then
+    echo -e "$(date +%T) GNOME: enabled all window buttons and set to the left position" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $gnome_buttons but did not succeed" >> $logfile
+fi
+
+# setting default "favorites" to the gnome shell dash (the sidebar)
+gnome_fav_apps="/etc/dconf/db/local.d/00-favorite-apps"
+cat > $gnome_fav_apps << EOF
+# Custom default GNOME settings for favorite apps in the sidebar (GNOME Shell Dash)
+[org/gnome/shell]
+favorite-apps = ['firefox.desktop', 'org.gnome.Nautilus.desktop', 'terminator.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Calculator.desktop']
+EOF
+# success test
+if [[ -f $gnome_fav_apps ]]; then
+    echo -e "$(date +%T) GNOME: set custom list of favorite apps in sidebar" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $gnome_fav_apps but did not succeed" >> $logfile
+fi
+
+# set Papirus icon theme to system default
+icon_theme="/etc/dconf/db/local.d/00-icon-theme"
+cat > $icon_theme << EOF
+# Custom default GNOME settings for 3rd party icon theme
+[org/gnome/desktop/interface]
+icon-theme="Papirus"
+EOF
+# success test
+if [[ -f $icon_theme ]]; then
+    echo -e "$(date +%T) GNOME: set default icon theme to Papirus" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $icon_theme but did not succeed" >> $logfile
+fi
+
+# set Arc-Darker GTK theme to system default
+gtk_theme="/etc/dconf/db/local.d/00-gtk-theme"
+cat > $gtk_theme << EOF
+# Custom default GNOME settings for GTK theme
+[org/gnome/desktop/interface]
+gtk-theme="Arc-Darker"
+EOF
+# success test
+if [[ -f $gtk_theme ]]; then
+    echo -e "$(date +%T) GNOME: set default GTK theme to Arc-Darker" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $gtk_theme but did not succeed" >> $logfile
+fi
+
+dconf update
+
+
+##### CUSTOMIZE TERMINAL SETTINGS
+# create custom .sh scripts in /etc/profile.d which will be sourced automatically
+
+colors_file="/etc/profile.d/bash-customizations.sh"
+cat > $colors_file << EOF
+#!/bin/bash
+# Created by Fedora post-install script
+# Custom system-wide modifications to environment variables
+
+if [ \$(id -u) -eq 0 ]; then
+    # root
+    PS1='\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;38;5;33m\]\W\[\033[00m\]# '
+else
+    # regular user
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;38;5;33m\]\W\[\033[00m\]$ '
+fi
+
+EOF
+
+
+##### REPORTING
 stop=$(date +%s)
 runtime=$((stop-start))
 echo -e "SCRIPT END: $(date +%c)" >> $logfile
 echo -e "RUN TIME: $runtime seconds (~$(($runtime / 60)) minutes)" >> $logfile
 clear
 cat $logfile
+
+
+##### REBOOT
+echo
+read -p "Press ENTER to proceed with reboot"
+echo -e "\nLog file saved to: $logfile"
+echo -e "\nRebooting in 5 seconds..."
+tick=5
+while [[ $tick -le 5 && $tick -ge 0 ]]; do
+    echo $tick
+    sleep 1
+    ((tick-=1))
+done
+
+systemctl reboot
