@@ -1,12 +1,13 @@
-# Toubleshooting graphics issues
+# Kernel 5.11 graphics issues
 
+## My setup
 The laptop I'm using for this is a Dell G5 5587 gaming laptop which includes both on-chip Intel graphics as well as a dedicated nVidia graphics card.
 
 It is plugged into two external monitors. One via the HDMI port and one via a USB3 docking station that uses the DisplayLink driver.
 
 I use Fedora Workstation on this machine as a daily driver. At the time I started having issues I was on Fedora 32, then upgraded (clean install) to Fedora 33 but had the same issues.
 
-## Kernel 5.11 issues
+## Symptoms
 Around late March 2021 I started to have issues booting Fedora 32 after a recent round of updates.
 
 It appeared as though it just hung on boot - the screen would freeze and nothing would happen.
@@ -31,6 +32,11 @@ With an external monitor the experience is terrible. It takes several seconds af
 
 Disconnecting the external monitor from the HDMI port and just using the laptop display works fine, but that is not acceptable for my desktop.
 
+For what it's worth I installed Fedora 33 with the latest kernel, version 5.11.11 onto an older Dell Latitude E5430 laptop that only had the integrated Intel graphics chip. This worked fine with an external monitor. In Settings --> About the driver shows up as "Intel HD Graphics 4000 (IVB GT2)"
+
+## Known issues
+After doing some googling, I've found that there were significant changes in kernel 5.11 to graphics drivers.
+There's also a plethora of issue complaints about graphics problem with 5.11, although most of them are coming from AMD users.
 
 ## Temporary fix
 Since I know everything worked with kernel 5.10, I can just go back to that for the time being.
