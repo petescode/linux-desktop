@@ -15,8 +15,9 @@ DEVELOPMENT:
     - ubuntu fonts
     - add PS1 variable
     - LS_COLORS
-    - desired hostname (user input)
-    - ssh and then disable
+    - disable powershell telemetry programatically
+    - CAC support
+    - Microsoft Teams
 '
 
 if [[ $(id -u) -ne 0 ]]; then
