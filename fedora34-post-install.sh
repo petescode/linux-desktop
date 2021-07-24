@@ -31,6 +31,10 @@ logfile="/var/log/fedora34-gnome-post-install-script.log"
 echo -e "SCRIPT START: $(date +%c)" > $logfile
 start=$(date +%s)
 
+##### SET HOSTNAME
+echo -e "Set hostname of this machine: "
+read new_hostname
+hostnamectl set-hostname $new_hostname && "$(date +%T) set hostname to $new_hostname" > $logfile
 
 ##### INSTALL REPOS
 # RPM Fusion free and nonfree https://rpmfusion.org/Configuration/
