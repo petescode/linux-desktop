@@ -17,8 +17,7 @@ DEVELOPMENT:
 
     - powershell
     - ssh and then disable
-    - removed papirus icon theme, does nothing (GNOME version change most likely)
-    - removed arc theme, does nothing (GNOME version change most likely)
+    - removed arc theme - at this time, it is buggy (close icon cannot render). switch to adwaita-dark
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -150,6 +149,7 @@ declare -a packages=(
     "vim"
     "wireshark"
     "youtube-dl"
+    "papirus-icon-theme"
 )
 
 declare -a group_packages=(
