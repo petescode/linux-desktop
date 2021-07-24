@@ -1,14 +1,7 @@
 #!/bin/bash
 : '
 Notes:
-    - nVidia installation assumes non-legacy hardware
-    - nVidia drivers install from RPM Fusion repos - not fedora-workstation-repositories
-    - For more info on Fedora Workstation Repositories (Chrome lives here): https://fedoraproject.org/wiki/Workstation/Third_Party_Software_Repositories
-    - GNOME default setings:
-        https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/desktop_migration_and_administration_guide/custom-default-values-system-settings
-    - GNOME sidebar defaults:
-        https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/using_the_desktop_environment_in_rhel_8/customizing-default-favorite-applications_starting-using-gnome#setting-the-same-favorite-applications-for-all-users_customizing-default-favorite-applications
-
+    - No more nVidia support in this script
 
 DEVELOPMENT:
     - work on GNOME settings
@@ -26,7 +19,7 @@ if [[ $(id -u) -ne 0 ]]; then
     exit 1
 fi
 
-logfile="/var/log/fedora31-gnome-post-install-script.log"
+logfile="/var/log/fedora34-gnome-post-install-script.log"
 
 
 ##### START LOG FILE
@@ -133,12 +126,6 @@ dnf install \*-firmware -y
 clear
 echo -e "\nINSTALL NEW PACKAGES\n"
 
-# nVidia drivers (if needed)
-if [[ $(lspci | grep -i nvidia) ]]; then
-    echo -e "$(date +%T) nVidia hardware detected, marking drivers for installation" >> $logfile
-    nvidia=true
-fi
-
 # array of packages to install from repos
 declare -a packages=(
     "arc-theme"
@@ -164,22 +151,12 @@ declare -a group_packages=(
     "--with-optional virtualization"
 )
 
-if [[ $nvidia = true ]]; then
-    declare -a fusion_packages=(
-        "fuse-exfat"
-        "libdvdcss"
-        "python-vlc"
-        "vlc"
-        "xorg-x11-drv-nvidia-390xx"
-    )
-else
-    declare -a fusion_packages=(
-        "fuse-exfat"
-        "libdvdcss"
-        "python-vlc"
-        "vlc"
-    )
-fi
+declare -a fusion_packages=(
+    "fuse-exfat"
+    "libdvdcss"
+    "python-vlc"
+    "vlc"
+)
 
 declare -a proprietary_packages=(
     "code"
@@ -219,88 +196,7 @@ else
     echo -e "$(date +%T) ERROR: failed installing Slack Flatpak" >> $logfile
 fi
 
-
-##### SET DEFAULT GNOME SETTINGS
-# using here-doc to create new file with content
-
-# enable min,max window buttons & set position to the left
-gnome_buttons="/etc/dconf/db/local.d/00-button-settings"
-cat > $gnome_buttons << EOF
-# Custom default GNOME settings window button layout
-[org/gnome/desktop/wm/preferences]
-button-layout='close,minimize,maximize:'
-EOF
-# testing for success with here-docs is tricky
-if [[ -f $gnome_buttons ]]; then
-    echo -e "$(date +%T) GNOME: enabled all window buttons and set to the left position" >> $logfile
-else
-    echo -e "$(date +%T) ERROR: attempted to create file $gnome_buttons but did not succeed" >> $logfile
-fi
-
-# setting default "favorites" to the gnome shell dash (the sidebar)
-gnome_fav_apps="/etc/dconf/db/local.d/00-favorite-apps"
-cat > $gnome_fav_apps << EOF
-# Custom default GNOME settings for favorite apps in the sidebar (GNOME Shell Dash)
-[org/gnome/shell]
-favorite-apps = ['firefox.desktop', 'org.gnome.Nautilus.desktop', 'terminator.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Calculator.desktop']
-EOF
-# success test
-if [[ -f $gnome_fav_apps ]]; then
-    echo -e "$(date +%T) GNOME: set custom list of favorite apps in sidebar" >> $logfile
-else
-    echo -e "$(date +%T) ERROR: attempted to create file $gnome_fav_apps but did not succeed" >> $logfile
-fi
-
-# set Papirus icon theme to system default
-icon_theme="/etc/dconf/db/local.d/00-icon-theme"
-cat > $icon_theme << EOF
-# Custom default GNOME settings for 3rd party icon theme
-[org/gnome/desktop/interface]
-icon-theme="Papirus"
-EOF
-# success test
-if [[ -f $icon_theme ]]; then
-    echo -e "$(date +%T) GNOME: set default icon theme to Papirus" >> $logfile
-else
-    echo -e "$(date +%T) ERROR: attempted to create file $icon_theme but did not succeed" >> $logfile
-fi
-
-# set Arc-Darker GTK theme to system default
-gtk_theme="/etc/dconf/db/local.d/00-gtk-theme"
-cat > $gtk_theme << EOF
-# Custom default GNOME settings for GTK theme
-[org/gnome/desktop/interface]
-gtk-theme="Arc-Darker"
-EOF
-# success test
-if [[ -f $gtk_theme ]]; then
-    echo -e "$(date +%T) GNOME: set default GTK theme to Arc-Darker" >> $logfile
-else
-    echo -e "$(date +%T) ERROR: attempted to create file $gtk_theme but did not succeed" >> $logfile
-fi
-
-dconf update
-
-
-##### CUSTOMIZE TERMINAL SETTINGS
-# create custom .sh scripts in /etc/profile.d which will be sourced automatically
-
-colors_file="/etc/profile.d/bash-customizations.sh"
-cat > $colors_file << EOF
-#!/bin/bash
-# Created by Fedora post-install script
-# Custom system-wide modifications to environment variables
-
-if [ \$(id -u) -eq 0 ]; then
-    # root
-    PS1='\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;38;5;33m\]\W\[\033[00m\]# '
-else
-    # regular user
-    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;38;5;33m\]\W\[\033[00m\]$ '
-fi
-
-EOF
-
+##### GNOME 40 settings
 
 ##### REPORTING
 stop=$(date +%s)
