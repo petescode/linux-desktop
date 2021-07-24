@@ -2,6 +2,8 @@
 : '
 Notes:
     - No more nVidia support in this script
+    - Fedora 34 shipped with GNOME 40, which is a big departure from previous GNOME versions; hence a lot of changes around GNOME settings
+    - 
 
 DEVELOPMENT:
     - work on GNOME settings
@@ -12,6 +14,11 @@ DEVELOPMENT:
     - add PS1 variable
     - LS_COLORS
     - desired hostname (user input)
+
+    - powershell
+    - ssh and then disable
+    - removed papirus icon theme, does nothing (GNOME version change most likely)
+    - removed arc theme, does nothing (GNOME version change most likely)
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -128,7 +135,6 @@ echo -e "\nINSTALL NEW PACKAGES\n"
 
 # array of packages to install from repos
 declare -a packages=(
-    "arc-theme"
     "darktable"
     "dconf-editor"
     "dnf-utils"
@@ -136,7 +142,6 @@ declare -a packages=(
     "icedtea-web"
     "keepassxc"
     "nmap"
-    "papirus-icon-theme"
     "perl-Image-ExifTool"
     "pinta"
     "p7zip"
