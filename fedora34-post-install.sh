@@ -3,7 +3,9 @@
 Notes:
     - No more nVidia support in this script
     - Fedora 34 shipped with GNOME 40, which is a big departure from previous GNOME versions; hence a lot of changes around GNOME settings
-    - 
+        - At this time, I cant find solid documentation on programatically changing GNOME 40 settings
+        - Previous methods using dconf files/directories are not working
+        - Need to revisit this once GNOME 40 has matured
 
 DEVELOPMENT:
     - work on GNOME settings
@@ -14,10 +16,7 @@ DEVELOPMENT:
     - add PS1 variable
     - LS_COLORS
     - desired hostname (user input)
-
-    - powershell
     - ssh and then disable
-    - removed arc theme - at this time, it is buggy (close icon cannot render). switch to adwaita-dark
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -72,6 +71,9 @@ else
     echo -e "$(date +%T) ERROR (FATAL): failed installing Visual Studio Code repository - exiting" >> $logfile
     exit 1
 fi
+
+# Microsoft PowerShell core repo https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7.1#fedora
+curl https://packages.microsoft.com/config/rhel/7/prod.repo | tee /etc/yum.repos.d/microsoft.repo && echo -e "$(date +%T) installed Microsoft PowerShell repository" >> $logfile
 
 # Google Chrome repo 
 if dnf install fedora-workstation-repositories -y && dnf config-manager --set-enabled google-chrome; then
@@ -150,6 +152,7 @@ declare -a packages=(
     "wireshark"
     "youtube-dl"
     "papirus-icon-theme"
+    "powershell"
 )
 
 declare -a group_packages=(
