@@ -7,6 +7,8 @@ Notes:
         - Previous methods using dconf files/directories are not working
         - Need to revisit this once GNOME 40 has matured
 
+    - Changing default fonts - still relevant: https://bbs.archlinux.org/viewtopic.php?id=120604
+
 DEVELOPMENT:
     - work on GNOME settings
         - keyboard shortcut for terminal
@@ -210,6 +212,43 @@ else
 fi
 
 ##### GNOME 40 settings
+
+# https://help.gnome.org/admin/system-admin-guide/stable/dconf-custom-defaults.html.en
+
+# 
+fonts="/etc/dconf/db/local.d/01-fonts"
+cat > $fonts << EOF
+# Custom default GNOME settings for fonts
+[org/gnome/desktop/interface]
+font-name='DejaVu Sans Book 11'
+monospace-font-name='DejaVu Sans Mono 11'
+document-font-name='DejaVu Sans 11'
+EOF
+# success test
+if [[ -f $fonts ]]; then
+    echo -e "$(date +%T) GNOME: set default fonts to DejaVu" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $fonts but did not succeed" >> $logfile
+fi
+
+dconf update
+
+
+
+
+
+# get list of users logged in
+#users=( $(who | awk '{print $1}') )
+#for u in $users
+#do
+#    echo "Changing font settings for user $u"
+#    su $u -c 'gsettings set org.gnome.desktop.interface font-name "DejaVu Sans Book 11" && gsettings set org.gnome.desktop.interface monospace-font-name "DejaVu Sans Mono 11" && gsettings set org.gnome.desktop.interface document-font-name "DejaVu Sans 11"'
+#done
+
+#su $u -c 'gsettings set org.gnome.desktop.interface font-name "DejaVu Sans Book 11"' && echo -e "$(date +%T) set font to DejaVu Sans Book 11" >> $logfile
+#gsettings set org.gnome.desktop.interface monospace-font-name "DejaVu Sans Mono 11" && echo -e "$(date +%T) set monospace font to DejaVu Sans Mono 11" >> $logfile
+#gsettings set org.gnome.desktop.interface document-font-name "DejaVu Sans 11" && echo -e "$(date +%T) set document font to DejaVu Sans 11" >> $logfile
+# but this will be run under root's profile, hmm
 
 ##### REPORTING
 stop=$(date +%s)
