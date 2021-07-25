@@ -215,7 +215,7 @@ fi
 
 # https://help.gnome.org/admin/system-admin-guide/stable/dconf-custom-defaults.html.en
 
-# 
+# font settings
 fonts="/etc/dconf/db/local.d/01-fonts"
 cat > $fonts << EOF
 # Custom default GNOME settings for fonts
@@ -229,6 +229,22 @@ if [[ -f $fonts ]]; then
     echo -e "$(date +%T) GNOME: set default fonts to DejaVu" >> $logfile
 else
     echo -e "$(date +%T) ERROR: attempted to create file $fonts but did not succeed" >> $logfile
+fi
+
+# nautilus settings (the window explorer)
+nautilus="/etc/dconf/db/local.d/02-nautilus"
+cat > $nautilus << EOF
+# Custom default GNOME settings for Nautilus
+[org/gnome/nautilus/preferences]
+default-folder-viewer='list-view'
+show-hidden-files='True'
+thumbnail-limit='200'
+EOF
+# success test
+if [[ -f $nautilus ]]; then
+    echo -e "$(date +%T) GNOME: set default settings for Nautilus" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $nautilus but did not succeed" >> $logfile
 fi
 
 dconf update
