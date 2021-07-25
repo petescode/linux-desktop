@@ -216,6 +216,7 @@ fi
 # https://help.gnome.org/admin/system-admin-guide/stable/dconf-custom-defaults.html.en
 
 # font settings
+# need to account for "Legacy Window Titles" (see gnome-tweaks)
 fonts="/etc/dconf/db/local.d/01-fonts"
 cat > $fonts << EOF
 # Custom default GNOME settings for fonts
@@ -237,7 +238,6 @@ cat > $nautilus << EOF
 # Custom default GNOME settings for Nautilus
 [org/gnome/nautilus/preferences]
 default-folder-viewer='list-view'
-show-hidden-files='True'
 thumbnail-limit='200'
 EOF
 # success test
@@ -281,7 +281,7 @@ read -p "Press ENTER to proceed with reboot"
 echo -e "\nLog file saved to: $logfile"
 echo -e "\nRebooting in 5 seconds..."
 tick=5
-while [[ $tick -le 5 && $tick -ge 0 ]]; do
+while [[ $tick -le 4 && $tick -ge 0 ]]; do
     echo $tick
     sleep 1
     ((tick-=1))
