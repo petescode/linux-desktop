@@ -233,6 +233,7 @@ else
 fi
 
 # nautilus settings (the window explorer)
+# thumbnail limit doesn't seem to work anymore (see dconf editor)
 nautilus="/etc/dconf/db/local.d/02-nautilus"
 cat > $nautilus << EOF
 # Custom default GNOME settings for Nautilus
@@ -246,6 +247,24 @@ if [[ -f $nautilus ]]; then
 else
     echo -e "$(date +%T) ERROR: attempted to create file $nautilus but did not succeed" >> $logfile
 fi
+
+# desktop settings
+desktop="/etc/dconf/db/local.d/03-desktop"
+cat > $desktop << EOF
+# Custom default GNOME settings for desktop
+[org/gnome/desktop/wm/preferences]
+button-layout='close,minimize,maximize:appmenu'
+theme='Adwaita-dark'
+titlebar-font='DejaVu Sans Bold 11'
+EOF
+# success test
+if [[ -f $desktop ]]; then
+    echo -e "$(date +%T) GNOME: set default settings for desktop" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $desktop but did not succeed" >> $logfile
+fi
+
+# tray settings seem to be at org.gnome.shell.favorite-apps
 
 dconf update
 
