@@ -269,21 +269,17 @@ fi
 dconf update
 
 
+##### DISABLE MICROSOFT TELEMETRY
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+export POWERSHELL_TELEMETRY_OPTOUT=1
+#bash -c 'echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> /etc/skel/.bash_profile'
+#bash -c 'echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> /etc/skel/.bash_profile'
+files=$(locate .bash_profile)
+for i in $files; do
+  bash -c "echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $i"
+  bash -c "echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> $i"
+done
 
-
-
-# get list of users logged in
-#users=( $(who | awk '{print $1}') )
-#for u in $users
-#do
-#    echo "Changing font settings for user $u"
-#    su $u -c 'gsettings set org.gnome.desktop.interface font-name "DejaVu Sans Book 11" && gsettings set org.gnome.desktop.interface monospace-font-name "DejaVu Sans Mono 11" && gsettings set org.gnome.desktop.interface document-font-name "DejaVu Sans 11"'
-#done
-
-#su $u -c 'gsettings set org.gnome.desktop.interface font-name "DejaVu Sans Book 11"' && echo -e "$(date +%T) set font to DejaVu Sans Book 11" >> $logfile
-#gsettings set org.gnome.desktop.interface monospace-font-name "DejaVu Sans Mono 11" && echo -e "$(date +%T) set monospace font to DejaVu Sans Mono 11" >> $logfile
-#gsettings set org.gnome.desktop.interface document-font-name "DejaVu Sans 11" && echo -e "$(date +%T) set document font to DejaVu Sans 11" >> $logfile
-# but this will be run under root's profile, hmm
 
 ##### REPORTING
 stop=$(date +%s)
@@ -299,7 +295,7 @@ echo
 read -p "Press ENTER to proceed with reboot"
 echo -e "\nLog file saved to: $logfile"
 echo -e "\nRebooting in 5 seconds..."
-tick=5
+tick=4
 while [[ $tick -le 4 && $tick -ge 0 ]]; do
     echo $tick
     sleep 1
