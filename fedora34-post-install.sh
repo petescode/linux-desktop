@@ -19,10 +19,11 @@ DEVELOPMENT:
     - LS_COLORS
     - CAC support
     - Microsoft Teams
-    - VSCode telemetry
     - download and install displaylink-rpm
     - set default applications (VLC)
     - add logging for all these new features
+    - clamav setup
+    - disable bluetooth
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -124,6 +125,16 @@ else
     exit 1
 fi
 
+# Microsoft Teams repo
+cat > /etc/yum.repos.d/ms-teams.repo << EOF
+[teams]
+name=teams
+baseurl=https://packages.microsoft.com/yumrepos/ms-teams
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+EOF
+
 
 ##### REMOVE UNWANTED PACKAGES
 clear
@@ -192,7 +203,6 @@ declare -a packages=(
     "wireshark"
     "youtube-dl"
     "papirus-icon-theme"
-    "powershell"
 )
 
 declare -a group_packages=(
@@ -209,6 +219,8 @@ declare -a fusion_packages=(
 declare -a proprietary_packages=(
     "code"
     "google-chrome-stable"
+    "powershell"
+    "teams"
 )
 
 # install each package from each array in one command
@@ -318,7 +330,7 @@ done
 code &
 killall code
 codefile="/home/$(logname)/.config/Code/User/settings.json"
-cat > $codefile << EOF
+cat >> $codefile << EOF
 {
     "telemetry.enableCrashReporter": false,
     "telemetry.enableTelemetry": false
