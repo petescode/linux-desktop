@@ -19,11 +19,9 @@ DEVELOPMENT:
     - LS_COLORS
     - CAC support
     - Microsoft Teams
-    - make hostnamectl optional
     - VSCode telemetry
     - download and install displaylink-rpm
     - set default applications (VLC)
-    - github prompt for username and email setting
     - add logging for all these new features
 '
 
@@ -58,14 +56,11 @@ clear
 read -r -p $'\nWould you like to set your git account info? [y/n]\n(Default is no)\n' response
 response_lower=${response,,} #tolower
 if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
-    # doesnt work cause were running as root and this is user-based
     echo -e "\nSet git username: "
     read git_user
-    # git config --global user.name "$git_user" && "$(date +%T) set git username" >> $logfile
     
     echo -e "\nSet git email: "
     read git_email
-    # git config --global user.email "$git_email" && "$(date +%T) set git email" >> $logfile
 
 # EOF offsetting is weird so it needs to be spaced to the left like this
     gitfile="/home/$(logname)/.gitconfig"
@@ -75,7 +70,6 @@ cat > $gitfile << EOF
     email = $git_email
 EOF
 fi
-
 
 
 ##### INSTALL REPOS
@@ -181,6 +175,7 @@ echo -e "\nINSTALL NEW PACKAGES\n"
 
 # array of packages to install from repos
 declare -a packages=(
+    "ansible"
     "darktable"
     "dconf-editor"
     "dnf-utils"
@@ -307,7 +302,7 @@ fi
 dconf update
 
 
-##### DISABLE MICROSOFT TELEMETRY
+##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export POWERSHELL_TELEMETRY_OPTOUT=1
 
@@ -316,6 +311,22 @@ for i in $files; do
   bash -c "echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $i"
   bash -c "echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> $i"
 done
+
+
+##### DISABLE TELEMETRY FOR VISUAL STUDIO CODE
+codefile="/home/$(logname)/.config/Code/User/settings.json"
+cat > $codefile << EOF
+{
+    "telemetry.enableCrashReporter": false,
+    "telemetry.enableTelemetry": false
+}
+EOF
+# success test
+if grep -q "telemetry" $codefile; then
+    echo -e "$(date +%T) GNOME: set disable telemetry settings for Visual Studio Code" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to set disable telemetry settings for Visual Studio Code but did not succeed" >> $logfile
+fi
 
 
 ##### REPORTING
