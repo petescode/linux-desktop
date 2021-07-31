@@ -17,9 +17,9 @@ DEVELOPMENT:
     - ubuntu fonts
     - add PS1 variable
     - LS_COLORS
-    - disable powershell telemetry programatically
     - CAC support
-    - Microsoft Teams
+    - Microsoft Teams\
+    - make hostnamectl optional
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -34,10 +34,18 @@ logfile="/var/log/fedora34-gnome-post-install-script.log"
 echo -e "SCRIPT START: $(date +%c)" > $logfile
 start=$(date +%s)
 
+
 ##### SET HOSTNAME
-echo -e "Set hostname of this machine: "
-read new_hostname
-hostnamectl set-hostname $new_hostname && "$(date +%T) set hostname to $new_hostname" > $logfile
+current_name=$(hostnamectl status --static)
+echo -e "Current hostname: $current_name"
+read -r -p $'\nWould you like to change the hostname? [y/n]\n(Default is no)\n' response
+response_lower=${response,,} #tolower
+if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
+    echo -e "\nSet hostname of this machine: "
+    read new_hostname
+    hostnamectl set-hostname $new_hostname && "$(date +%T) set hostname to $new_hostname" > $logfile
+fi
+
 
 ##### INSTALL REPOS
 # RPM Fusion free and nonfree https://rpmfusion.org/Configuration/
@@ -134,7 +142,6 @@ echo -e "\nINSTALL FIRMWARE UPDATES\n"
 
 # requires RPM Fusion tainted repos https://rpmfusion.org/Configuration/
 dnf install \*-firmware -y
-# firmware install causes errors, but apparently is a bug with package in one of tainted repos that has a report open for it; do not expect this to be an issue forever
 
 
 ##### INSTALL NEW PACKAGES
@@ -273,7 +280,6 @@ dconf update
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export POWERSHELL_TELEMETRY_OPTOUT=1
 
-# the below works, but doesn't get /home/<users>/.bash_profile for some reason
 files=$(find /home -type f -name ".bash_profile")
 for i in $files; do
   bash -c "echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $i"
