@@ -108,7 +108,6 @@ rpm --import https://packages.microsoft.com/keys/microsoft.asc && echo -e "$(dat
 
 if echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo; then
     echo -e "$(date +%T) installed Visual Studio Code repository" >> $logfile
-    echo -e "    \`-----> remember to disable telemetry options once installed" >> $logfile
 else
     echo -e "$(date +%T) ERROR (FATAL): failed installing Visual Studio Code repository - exiting" >> $logfile
     exit 1
@@ -135,7 +134,7 @@ enabled=1
 gpgcheck=1
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF
-if /etc/yum.repos.d/ms-teams.repo; then
+if [[ -f /etc/yum.repos.d/ms-teams.repo ]]; then
     echo -e "$(date +%T) installed Microsoft Teams repository" >> $logfile
 else
     echo -e "$(date +%T) ERROR (FATAL): failed installing Microsoft Teams repository" >> $logfile
@@ -332,8 +331,12 @@ done
 
 
 ##### DISABLE TELEMETRY FOR VISUAL STUDIO CODE
+
+# this is not actually working
+
 # vscode builds the directory structure the first time you launch code
-code &
+su -c 'code &' $(logname) # need to run this as the user or the directory structure gets built for root
+sleep 3
 killall code
 codefile="/home/$(logname)/.config/Code/User/settings.json"
 cat >> $codefile << EOF
