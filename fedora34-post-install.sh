@@ -128,8 +128,8 @@ fi
 
 # Microsoft Teams repo
 cat > /etc/yum.repos.d/ms-teams.repo << EOF
-[Microsoft Teams]
-name=teams
+[microsoft-teams]
+name=Microsoft Teams
 baseurl=https://packages.microsoft.com/yumrepos/ms-teams
 enabled=1
 gpgcheck=1
