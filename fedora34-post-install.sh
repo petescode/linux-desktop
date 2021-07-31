@@ -314,6 +314,9 @@ done
 
 
 ##### DISABLE TELEMETRY FOR VISUAL STUDIO CODE
+# vscode builds the directory structure the first time you launch code
+code &
+killall code
 codefile="/home/$(logname)/.config/Code/User/settings.json"
 cat > $codefile << EOF
 {
