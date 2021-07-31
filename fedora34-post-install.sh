@@ -67,11 +67,12 @@ if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
     read git_email
     # git config --global user.email "$git_email" && "$(date +%T) set git email" >> $logfile
 
+# EOF offsetting is weird so it needs to be spaced to the left like this
     gitfile="/home/$(logname)/.gitconfig"
-    cat > $gitfile << EOF
-    [user]
-        name = $git_user
-        email = $git_email
+cat > $gitfile << EOF
+[user]
+    name = $git_user
+    email = $git_email
 EOF
 fi
 
