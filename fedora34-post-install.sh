@@ -274,7 +274,7 @@ export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export POWERSHELL_TELEMETRY_OPTOUT=1
 
 # the below works, but doesn't get /home/<users>/.bash_profile for some reason
-files=$(locate .bash_profile)
+files=$(find /home -type f ".bash_profile")
 for i in $files; do
   bash -c "echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $i"
   bash -c "echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> $i"
