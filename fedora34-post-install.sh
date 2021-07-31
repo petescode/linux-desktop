@@ -9,6 +9,8 @@ Notes:
 
     - Changing default fonts - still relevant: https://bbs.archlinux.org/viewtopic.php?id=120604
 
+    - Did not find info for MS Teams telemetry, might not be there - revisit this one day
+
 DEVELOPMENT:
     - work on GNOME settings
         - keyboard shortcut for terminal
@@ -18,7 +20,6 @@ DEVELOPMENT:
     - add PS1 variable
     - LS_COLORS
     - CAC support
-    - Microsoft Teams
     - download and install displaylink-rpm
     - set default applications (VLC)
     - add logging for all these new features
@@ -127,13 +128,18 @@ fi
 
 # Microsoft Teams repo
 cat > /etc/yum.repos.d/ms-teams.repo << EOF
-[teams]
+[Microsoft Teams]
 name=teams
 baseurl=https://packages.microsoft.com/yumrepos/ms-teams
 enabled=1
 gpgcheck=1
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF
+if /etc/yum.repos.d/ms-teams.repo; then
+    echo -e "$(date +%T) installed Microsoft Teams repository" >> $logfile
+else
+    echo -e "$(date +%T) ERROR (FATAL): failed installing Microsoft Teams repository" >> $logfile
+fi
 
 
 ##### REMOVE UNWANTED PACKAGES
