@@ -280,6 +280,15 @@ for i in $files; do
   bash -c "echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> $i"
 done
 
+# other try with profile settings
+# https://fedoramagazine.org/customizing-bash/
+telemetry="/etc/profile.d/disable-microsoft-telemetry.sh"
+cat > $desktop << EOF
+# Settings to disable Microsoft telemetry
+DOTNET_CLI_TELEMETRY_OPTOUT=1
+POWERSHELL_TELEMETRY_OPTOUT=1
+EOF
+
 
 ##### REPORTING
 stop=$(date +%s)
