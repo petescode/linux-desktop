@@ -49,7 +49,7 @@ response_lower=${response,,} #tolower
 if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
     echo -e "\nSet hostname of this machine: "
     read new_hostname
-    hostnamectl set-hostname $new_hostname && "$(date +%T) set hostname to $new_hostname" > $logfile
+    hostnamectl set-hostname $new_hostname && "$(date +%T) set hostname to $new_hostname" >> $logfile
 fi
 
 
@@ -58,13 +58,21 @@ clear
 read -r -p $'\nWould you like to set your git account info? [y/n]\n(Default is no)\n' response
 response_lower=${response,,} #tolower
 if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
+    # doesnt work cause were running as root and this is user-based
     echo -e "\nSet git username: "
     read git_user
-    git config --global user.name "$git_user" && "$(date +%T) set git username" > $logfile
+    # git config --global user.name "$git_user" && "$(date +%T) set git username" >> $logfile
     
     echo -e "\nSet git email: "
     read git_email
-    git config --global user.email "$git_email" && "$(date +%T) set git email" > $logfile
+    # git config --global user.email "$git_email" && "$(date +%T) set git email" >> $logfile
+
+    gitfile="/home/$(logname)/.gitconfig"
+    cat > $gitfile << EOF
+    [user]
+        name = $git_user
+        email = $git_email
+EOF
 fi
 
 
