@@ -18,8 +18,13 @@ DEVELOPMENT:
     - add PS1 variable
     - LS_COLORS
     - CAC support
-    - Microsoft Teams\
+    - Microsoft Teams
     - make hostnamectl optional
+    - VSCode telemetry
+    - download and install displaylink-rpm
+    - set default applications (VLC)
+    - github prompt for username and email setting
+    - add logging for all these new features
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -36,6 +41,7 @@ start=$(date +%s)
 
 
 ##### SET HOSTNAME
+clear
 current_name=$(hostnamectl status --static)
 echo -e "Current hostname: $current_name"
 read -r -p $'\nWould you like to change the hostname? [y/n]\n(Default is no)\n' response
@@ -44,6 +50,21 @@ if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
     echo -e "\nSet hostname of this machine: "
     read new_hostname
     hostnamectl set-hostname $new_hostname && "$(date +%T) set hostname to $new_hostname" > $logfile
+fi
+
+
+##### SET GIT INFO
+clear
+read -r -p $'\nWould you like to set your git account info? [y/n]\n(Default is no)\n' response
+response_lower=${response,,} #tolower
+if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
+    echo -e "\nSet git username: "
+    read git_user
+    git config --global user.name "$git_user" && "$(date +%T) set git username" > $logfile
+    
+    echo -e "\nSet git email: "
+    read git_email
+    git config --global user.email "$git_email" && "$(date +%T) set git email" > $logfile
 fi
 
 
