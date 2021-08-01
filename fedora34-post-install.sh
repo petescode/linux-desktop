@@ -126,9 +126,9 @@ else
 fi
 
 # Microsoft Teams repo
-cat > /etc/yum.repos.d/ms-teams.repo << EOF
-[microsoft-teams]
-name=Microsoft Teams
+cat > /etc/yum.repos.d/teams.repo << EOF
+[teams]
+name=teams
 baseurl=https://packages.microsoft.com/yumrepos/ms-teams
 enabled=1
 gpgcheck=1
@@ -331,11 +331,11 @@ fi
 # otherwise, existing user settings override the defaults and no change occurs
 rm /home/$(logname)/.config/dconf/user
 
+
 # default file associations with applications
 mimeapps="/home/$(logname)/.config/mimeapps.list"
 cp ./fedora34-mimeapps.list $mimeapps
 chown $(logname):$(logname) $mimeapps
-
 # success test
 if [[ -f $mimeapps ]]; then
     echo -e "$(date +%T) GNOME: set default settings for application file associations" >> $logfile
