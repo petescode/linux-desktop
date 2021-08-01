@@ -22,6 +22,7 @@ DEVELOPMENT:
     - clamav setup
     - disable bluetooth
     - set default icon theme
+    - get rid of double teams repo
 
     - add logging for all these new features
 '
@@ -333,6 +334,7 @@ rm /home/$(logname)/.config/dconf/user
 # default file associations with applications
 mimeapps="/home/$(logname)/.config/mimeapps.list"
 cp ./fedora34-mimeapps.list $mimeapps
+chown $(logname):$(logname) $mimeapps
 
 # success test
 if [[ -f $mimeapps ]]; then
