@@ -13,18 +13,18 @@ Notes:
 
 DEVELOPMENT:
     - work on GNOME settings
-        - keyboard shortcut for terminal
         - Search & Preview --> Thumbnail --> size > 60M
         - sort folders before files
-    - ubuntu fonts
     - add PS1 variable
     - LS_COLORS
     - CAC support
     - download and install displaylink-rpm
     - set default applications (VLC)
-    - add logging for all these new features
     - clamav setup
     - disable bluetooth
+    - set default icon theme
+
+    - add logging for all these new features
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -314,7 +314,20 @@ else
     echo -e "$(date +%T) ERROR: attempted to create file $desktop but did not succeed" >> $logfile
 fi
 
-# tray settings seem to be at org.gnome.shell.favorite-apps
+# shell settings
+gnome_shell="/etc/dconf/db/local.d/04-shell"
+cat > $gnome_shell << EOF
+# Custom default GNOME settings for shell
+[org/gnome/shell]
+favorite-apps=['firefox.desktop', 'google-chrome.desktop', 'org.gnome.Nautilus.desktop', 'code.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Calculator.desktop', 'org.keepassxc.KeePassXC.desktop']
+EOF
+# success test
+if [[ -f $gnome_shell ]]; then
+    echo -e "$(date +%T) GNOME: set default settings for GNOME shell" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $gnome_shell but did not succeed" >> $logfile
+fi
+
 
 dconf update
 
@@ -331,9 +344,6 @@ done
 
 
 ##### DISABLE TELEMETRY FOR VISUAL STUDIO CODE
-
-# this is not actually working
-
 # vscode builds the directory structure the first time you launch code
 su -c 'code &' $(logname) # need to run this as the user or the directory structure gets built for root
 sleep 3
