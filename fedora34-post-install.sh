@@ -327,7 +327,9 @@ if [[ -f $gnome_shell ]]; then
 else
     echo -e "$(date +%T) ERROR: attempted to create file $gnome_shell but did not succeed" >> $logfile
 fi
-
+# need to remove the existing user settings so it reloads from the new defaults that you've just setup
+# otherwise, existing user settings override the defaults and no change occurs
+rm /home/$(logname)/.config/dconf/user
 
 dconf update
 
