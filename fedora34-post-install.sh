@@ -14,7 +14,6 @@ Notes:
 DEVELOPMENT:
     - work on GNOME settings
         - Search & Preview --> Thumbnail --> size > 60M
-        - sort folders before files
     - add PS1 variable
     - LS_COLORS
     - CAC support
@@ -278,13 +277,12 @@ else
 fi
 
 # nautilus settings (the window explorer)
-# thumbnail limit doesn't seem to work anymore (see dconf editor)
 nautilus="/etc/dconf/db/local.d/02-nautilus"
 cat > $nautilus << EOF
 # Custom default GNOME settings for Nautilus
 [org/gnome/nautilus/preferences]
 default-folder-viewer='list-view'
-thumbnail-limit='200'
+thumbnail-limit='100'
 EOF
 # success test
 if [[ -f $nautilus ]]; then
@@ -292,6 +290,9 @@ if [[ -f $nautilus ]]; then
 else
     echo -e "$(date +%T) ERROR: attempted to create file $nautilus but did not succeed" >> $logfile
 fi
+# have to delete the thumbnail cache or changes will not take effect
+# thumbnail directory does not get created until a preview is generated in Nautilus for the first time
+rm -r /home/$(logname)/.cache/thumbnails/
 
 # more nautilus settings but they are stored somewhere else
 filechooser="/home/$(logname)/.config/03-file-chooser-nautilus"
