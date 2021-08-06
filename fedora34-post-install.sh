@@ -21,8 +21,8 @@ DEVELOPMENT:
     - download and install displaylink-rpm
     - clamav setup
     - disable bluetooth
-    - set default icon theme
     - get rid of double teams repo
+    - add timestamp to log file name so script can be run multiple times
 
     - add logging for all these new features
 '
@@ -270,7 +270,6 @@ fi
 interface="/home/$(logname)/.config/01-fonts-gtk-and-icon-themes"
 cp ./01-fonts-gtk-and-icon-themes $interface
 chown $(logname):$(logname) $interface
-
 # success test
 if [[ -f $interface ]]; then
     echo -e "$(date +%T) GNOME: set default fonts to DejaVu; icon theme to Papirus; GTK theme to Adwaita-dark" >> $logfile
@@ -294,8 +293,19 @@ else
     echo -e "$(date +%T) ERROR: attempted to create file $nautilus but did not succeed" >> $logfile
 fi
 
+# more nautilus settings but they are stored somewhere else
+filechooser="/home/$(logname)/.config/03-file-chooser-nautilus"
+cp ./03-file-chooser-nautilus $filechooser
+chown $(logname):$(logname) $filechooser
+# success test
+if [[ -f $filechooser ]]; then
+    echo -e "$(date +%T) GNOME: set default sort order to directories first; show hidden files" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $filechooser but did not succeed" >> $logfile
+fi
+
 # desktop settings
-desktop="/etc/dconf/db/local.d/03-desktop"
+desktop="/etc/dconf/db/local.d/04-desktop"
 cat > $desktop << EOF
 # Custom default GNOME settings for desktop
 [org/gnome/desktop/wm/preferences]
@@ -311,7 +321,7 @@ else
 fi
 
 # shell settings
-gnome_shell="/etc/dconf/db/local.d/04-shell"
+gnome_shell="/etc/dconf/db/local.d/05-shell"
 cat > $gnome_shell << EOF
 # Custom default GNOME settings for shell
 [org/gnome/shell]
