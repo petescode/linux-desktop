@@ -267,21 +267,15 @@ fi
 
 # font settings
 # need to account for "Legacy Window Titles" (see gnome-tweaks)
-fonts="/etc/dconf/db/local.d/01-interface"
-cat > $fonts << EOF
-# Custom default GNOME settings for fonts
-[org/gnome/desktop/interface]
-font-name='DejaVu Sans Book 11'
-monospace-font-name='DejaVu Sans Mono 11'
-document-font-name='DejaVu Sans 11'
-gtk-theme='Adwaita-dark'
-icon-theme='Papirus'
-EOF
+interface="/home/$(logname)/.config/01-fonts-gtk-and-icon-themes"
+cp ./01-fonts-gtk-and-icon-themes $interface
+chown $(logname):$(logname) $interface
+
 # success test
-if [[ -f $fonts ]]; then
-    echo -e "$(date +%T) GNOME: set default fonts to DejaVu" >> $logfile
+if [[ -f $interface ]]; then
+    echo -e "$(date +%T) GNOME: set default fonts to DejaVu; icon theme to Papirus; GTK theme to Adwaita-dark" >> $logfile
 else
-    echo -e "$(date +%T) ERROR: attempted to create file $fonts but did not succeed" >> $logfile
+    echo -e "$(date +%T) ERROR: attempted to create file $interface but did not succeed" >> $logfile
 fi
 
 # nautilus settings (the window explorer)
