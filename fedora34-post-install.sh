@@ -24,6 +24,9 @@ DEVELOPMENT:
     - add timestamp to log file name so script can be run multiple times
 
     - add logging for all these new features
+
+    - there has been a regression somewhere in the past 2-3 commits. all GNOME settings now broken.
+      also, things broke after I updated the template. check updates morning of 2021-08-06 to investigate 
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -266,7 +269,7 @@ fi
 
 # font settings
 # need to account for "Legacy Window Titles" (see gnome-tweaks)
-interface="/home/$(logname)/.config/01-fonts-gtk-and-icon-themes"
+interface="/etc/dconf/db/local.d/01-fonts-gtk-and-icon-themes"
 cp ./01-fonts-gtk-and-icon-themes $interface
 chown $(logname):$(logname) $interface
 # success test
@@ -295,7 +298,7 @@ fi
 rm -r /home/$(logname)/.cache/thumbnails/
 
 # more nautilus settings but they are stored somewhere else
-filechooser="/home/$(logname)/.config/03-file-chooser-nautilus"
+filechooser="/etc/dconf/db/local.d/03-file-chooser-nautilus"
 cp ./03-file-chooser-nautilus $filechooser
 chown $(logname):$(logname) $filechooser
 # success test
