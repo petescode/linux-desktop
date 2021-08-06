@@ -267,13 +267,15 @@ fi
 
 # font settings
 # need to account for "Legacy Window Titles" (see gnome-tweaks)
-fonts="/etc/dconf/db/local.d/01-fonts"
+fonts="/etc/dconf/db/local.d/01-interface"
 cat > $fonts << EOF
 # Custom default GNOME settings for fonts
 [org/gnome/desktop/interface]
 font-name='DejaVu Sans Book 11'
 monospace-font-name='DejaVu Sans Mono 11'
 document-font-name='DejaVu Sans 11'
+gtk-theme='Adwaita-dark'
+icon-theme='Papirus'
 EOF
 # success test
 if [[ -f $fonts ]]; then
