@@ -18,6 +18,7 @@ DEVELOPMENT:
     - disable bluetooth
     - add timestamp to log file name so script can be run multiple times
     - convert the rest of GNOME settings file creations to static files
+    - icon theme is not applying
 
     - add logging for all these new features
 '
@@ -129,7 +130,7 @@ enabled=1
 gpgcheck=1
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF
-if [[ -f /etc/yum.repos.d/ms-teams.repo ]]; then
+if [[ -f /etc/yum.repos.d/teams.repo ]]; then
     echo -e "$(date +%T) installed Microsoft Teams repository" >> $logfile
 else
     echo -e "$(date +%T) ERROR (FATAL): failed installing Microsoft Teams repository" >> $logfile
@@ -263,7 +264,7 @@ fi
 # font settings
 # need to account for "Legacy Window Titles" (see gnome-tweaks)
 interface="/etc/dconf/db/local.d/01-fonts-gtk-and-icon-themes"
-cp ./01-fonts-gtk-and-icon-themes $interface
+cp ./fonts-gtk-and-icon-themes $interface
 chown $(logname):$(logname) $interface
 # success test
 if [[ -f $interface ]]; then
@@ -292,7 +293,7 @@ rm -r /home/$(logname)/.cache/thumbnails/
 
 # more nautilus settings but they are stored somewhere else
 filechooser="/etc/dconf/db/local.d/03-file-chooser-nautilus"
-cp ./03-file-chooser-nautilus $filechooser
+cp ./file-chooser-nautilus $filechooser
 chown $(logname):$(logname) $filechooser
 # success test
 if [[ -f $filechooser ]]; then
@@ -337,7 +338,7 @@ rm /home/$(logname)/.config/dconf/user
 
 # default file associations with applications
 mimeapps="/home/$(logname)/.config/mimeapps.list"
-cp ./fedora34-mimeapps.list $mimeapps
+cp ./mimeapps.list $mimeapps
 chown $(logname):$(logname) $mimeapps
 # success test
 if [[ -f $mimeapps ]]; then
