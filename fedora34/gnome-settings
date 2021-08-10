@@ -1,0 +1,23 @@
+# Custom default GNOME settings for file-chooser (affects Nautilus)
+[org/gtk/settings/file-chooser]
+sort-directories-first=true
+show-hidden=true
+
+# Custom default GNOME settings for fonts
+[org/gnome/desktop/interface]
+font-name='DejaVu Sans Book 11'
+monospace-font-name='DejaVu Sans Mono 11'
+document-font-name='DejaVu Sans 11'
+gtk-theme='Adwaita-dark'
+icon-theme='Papirus'
+
+# Custom default GNOME settings for Nautilus
+[org/gnome/nautilus/preferences]
+default-folder-viewer='list-view'
+thumbnail-limit='100'
+
+[org/gnome/desktop/wm/preferences]
+button-layout='close,minimize,maximize:appmenu'
+theme='Adwaita-dark'
+titlebar-font='DejaVu Sans Bold 11'
+
