@@ -3,7 +3,6 @@
 sort-directories-first=true
 show-hidden=true
 
-# Custom default GNOME settings for fonts
 [org/gnome/desktop/interface]
 font-name='DejaVu Sans Book 11'
 monospace-font-name='DejaVu Sans Mono 11'
@@ -20,4 +19,3 @@ thumbnail-limit='100'
 button-layout='close,minimize,maximize:appmenu'
 theme='Adwaita-dark'
 titlebar-font='DejaVu Sans Bold 11'
-

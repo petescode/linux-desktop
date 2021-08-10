@@ -1,4 +1,0 @@
-[org/gnome/desktop/wm/preferences]
-button-layout='close,minimize,maximize:appmenu'
-theme='Adwaita-dark'
-titlebar-font='DejaVu Sans Bold 11'
