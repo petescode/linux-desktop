@@ -1,0 +1,4 @@
+# Custom default GNOME settings for file-chooser (affects Nautilus)
+[org/gtk/settings/file-chooser]
+sort-directories-first=true
+show-hidden=true

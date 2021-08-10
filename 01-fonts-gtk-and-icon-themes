@@ -1,0 +1,7 @@
+# Custom default GNOME settings for fonts
+[org/gnome/desktop/interface]
+font-name='DejaVu Sans Book 11'
+monospace-font-name='DejaVu Sans Mono 11'
+document-font-name='DejaVu Sans 11'
+gtk-theme='Adwaita-dark'
+icon-theme='Papirus'
