@@ -19,7 +19,6 @@ DEVELOPMENT:
     - add timestamp to log file name so script can be run multiple times
     - convert the rest of GNOME settings file creations to static files
     - icon theme is not applying
-    - test change commit
 
     - add logging for all these new features
 '
@@ -276,12 +275,7 @@ fi
 
 # nautilus settings (the window explorer)
 nautilus="/etc/dconf/db/local.d/02-nautilus"
-cat > $nautilus << EOF
-# Custom default GNOME settings for Nautilus
-[org/gnome/nautilus/preferences]
-default-folder-viewer='list-view'
-thumbnail-limit='100'
-EOF
+cp ./nautilus $nautilus
 # success test
 if [[ -f $nautilus ]]; then
     echo -e "$(date +%T) GNOME: set default settings for Nautilus" >> $logfile

@@ -1,0 +1,4 @@
+# Custom default GNOME settings for Nautilus
+[org/gnome/nautilus/preferences]
+default-folder-viewer='list-view'
+thumbnail-limit='100'
