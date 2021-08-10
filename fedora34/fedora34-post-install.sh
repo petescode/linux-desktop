@@ -266,77 +266,18 @@ settings_file="/etc/dconf/db/local.d/01-gnome-settings"
 cp ./gnome-settings $settings_file
 # success test
 if [[ -f $settings_file ]]; then
-    echo -e "$(date +%T) GNOME: set all the default settings" >> $logfile
+    echo -e "$(date +%T) GNOME: set default settings - config file is $settings_file" >> $logfile
 else
     echo -e "$(date +%T) ERROR: attempted to create file $settings_file but did not succeed" >> $logfile
 fi
 
+# need to remove the existing user settings so it reloads from the new defaults that you've just setup
+# otherwise, existing user settings override the defaults and no change occurs
 rm /home/$(logname)/.config/dconf/user
+
+# have to delete the thumbnail cache or changes will not take effect
+# thumbnail directory does not get created until a preview is generated in Nautilus for the first time
 rm -r /home/$(logname)/.cache/thumbnails/
-
-# # font settings
-# # need to account for "Legacy Window Titles" (see gnome-tweaks)
-# interface="/etc/dconf/db/local.d/01-fonts-gtk-and-icon-themes"
-# cp ./fonts-gtk-and-icon-themes $interface
-# chown $(logname):$(logname) $interface
-# # success test
-# if [[ -f $interface ]]; then
-#     echo -e "$(date +%T) GNOME: set default fonts to DejaVu; icon theme to Papirus; GTK theme to Adwaita-dark" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR: attempted to create file $interface but did not succeed" >> $logfile
-# fi
-
-# # nautilus settings (the window explorer)
-# nautilus="/etc/dconf/db/local.d/02-nautilus"
-# cp ./nautilus $nautilus
-# # success test
-# if [[ -f $nautilus ]]; then
-#     echo -e "$(date +%T) GNOME: set default settings for Nautilus" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR: attempted to create file $nautilus but did not succeed" >> $logfile
-# fi
-# # have to delete the thumbnail cache or changes will not take effect
-# # thumbnail directory does not get created until a preview is generated in Nautilus for the first time
-# rm -r /home/$(logname)/.cache/thumbnails/
-
-# # more nautilus settings but they are stored somewhere else
-# filechooser="/etc/dconf/db/local.d/03-file-chooser-nautilus"
-# cp ./file-chooser-nautilus $filechooser
-# chown $(logname):$(logname) $filechooser
-# # success test
-# if [[ -f $filechooser ]]; then
-#     echo -e "$(date +%T) GNOME: set default sort order to directories first; show hidden files" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR: attempted to create file $filechooser but did not succeed" >> $logfile
-# fi
-
-# # desktop settings
-# settings_file="/etc/dconf/db/local.d/04-org.gnome.desktop.wm.preferences"
-# cp ./org.gnome.desktop.wm.preferences $settings_file
-# # success test
-# if [[ -f $settings_file ]]; then
-#     echo -e "$(date +%T) GNOME: set default settings for desktop" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR: attempted to create file $settings_file but did not succeed" >> $logfile
-# fi
-
-# # shell settings
-# gnome_shell="/etc/dconf/db/local.d/05-shell"
-# cat > $gnome_shell << EOF
-# # Custom default GNOME settings for shell
-# [org/gnome/shell]
-# favorite-apps=['firefox.desktop', 'google-chrome.desktop', 'org.gnome.Nautilus.desktop', 'code.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Calculator.desktop', 'org.keepassxc.KeePassXC.desktop']
-# EOF
-# # success test
-# if [[ -f $gnome_shell ]]; then
-#     echo -e "$(date +%T) GNOME: set default settings for GNOME shell" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR: attempted to create file $gnome_shell but did not succeed" >> $logfile
-# fi
-# # need to remove the existing user settings so it reloads from the new defaults that you've just setup
-# # otherwise, existing user settings override the defaults and no change occurs
-# rm /home/$(logname)/.config/dconf/user
-
 
 # default file associations with applications
 mimeapps="/home/$(logname)/.config/mimeapps.list"
