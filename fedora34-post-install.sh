@@ -3,9 +3,6 @@
 Notes:
     - No more nVidia support in this script
     - Fedora 34 shipped with GNOME 40, which is a big departure from previous GNOME versions; hence a lot of changes around GNOME settings
-        - At this time, I cant find solid documentation on programatically changing GNOME 40 settings
-        - Previous methods using dconf files/directories are not working
-        - Need to revisit this once GNOME 40 has matured
 
     - Changing default fonts - still relevant: https://bbs.archlinux.org/viewtopic.php?id=120604
 
@@ -13,20 +10,16 @@ Notes:
 
 DEVELOPMENT:
     - work on GNOME settings
-        - Search & Preview --> Thumbnail --> size > 60M
     - add PS1 variable
     - LS_COLORS
     - CAC support
     - download and install displaylink-rpm
     - clamav setup
     - disable bluetooth
-    - get rid of double teams repo
     - add timestamp to log file name so script can be run multiple times
+    - convert the rest of GNOME settings file creations to static files
 
     - add logging for all these new features
-
-    - there has been a regression somewhere in the past 2-3 commits. all GNOME settings now broken.
-      also, things broke after I updated the template. check updates morning of 2021-08-06 to investigate 
 '
 
 if [[ $(id -u) -ne 0 ]]; then
