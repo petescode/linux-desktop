@@ -298,19 +298,13 @@ else
 fi
 
 # desktop settings
-desktop="/etc/dconf/db/local.d/04-desktop"
-cat > $desktop << EOF
-# Custom default GNOME settings for desktop
-[org/gnome/desktop/wm/preferences]
-button-layout='close,minimize,maximize:appmenu'
-theme='Adwaita-dark'
-titlebar-font='DejaVu Sans Bold 11'
-EOF
+settings_file="/etc/dconf/db/local.d/04-org.gnome.desktop.wm.preferences"
+cp ./org.gnome.desktop.wm.preferences $settings_file
 # success test
-if [[ -f $desktop ]]; then
+if [[ -f $settings_file ]]; then
     echo -e "$(date +%T) GNOME: set default settings for desktop" >> $logfile
 else
-    echo -e "$(date +%T) ERROR: attempted to create file $desktop but did not succeed" >> $logfile
+    echo -e "$(date +%T) ERROR: attempted to create file $settings_file but did not succeed" >> $logfile
 fi
 
 # shell settings
