@@ -271,6 +271,9 @@ else
     echo -e "$(date +%T) ERROR: attempted to create file $settings_file but did not succeed" >> $logfile
 fi
 
+rm /home/$(logname)/.config/dconf/user
+rm -r /home/$(logname)/.cache/thumbnails/
+
 # # font settings
 # # need to account for "Legacy Window Titles" (see gnome-tweaks)
 # interface="/etc/dconf/db/local.d/01-fonts-gtk-and-icon-themes"
