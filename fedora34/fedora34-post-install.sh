@@ -19,6 +19,7 @@ DEVELOPMENT:
     - add timestamp to log file name so script can be run multiple times
     - convert the rest of GNOME settings file creations to static files
     - icon theme is not applying
+    - test change commit
 
     - add logging for all these new features
 '
