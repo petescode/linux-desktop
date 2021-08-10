@@ -16,9 +16,6 @@ DEVELOPMENT:
     - download and install displaylink-rpm
     - clamav setup
     - disable bluetooth
-    - add timestamp to log file name so script can be run multiple times
-    - convert the rest of GNOME settings file creations to static files
-    - icon theme is not applying
 
     - add logging for all these new features
 '
@@ -28,7 +25,7 @@ if [[ $(id -u) -ne 0 ]]; then
     exit 1
 fi
 
-logfile="/var/log/fedora34-gnome-post-install-script.log"
+logfile="/var/log/fedora34-gnome-post-install-script_$(date +"%Y-%m-%d@%H:%M").log"
 
 
 ##### START LOG FILE
