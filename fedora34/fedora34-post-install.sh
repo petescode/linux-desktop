@@ -302,6 +302,21 @@ fi
 dconf update
 
 
+##### laptop lid close
+# but this would work all the time, not just when plugged into power
+#https://www.cyberciti.biz/faq/how-to-use-sed-to-find-and-replace-text-in-files-in-linux-unix-shell/
+#https://unix.stackexchange.com/questions/307497/gnome-disable-sleep-on-lid-close
+logind="/etc/systemd/logind.conf"
+sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind
+
+# success test
+if [[ egrep "^HandleLidSwitch" $logind ]]; then
+    echo -e "$(date +%T) set laptop lid close settings in $logind" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to modify file $logind but did not succeed" >> $logfile
+fi
+
+
 ##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export POWERSHELL_TELEMETRY_OPTOUT=1
