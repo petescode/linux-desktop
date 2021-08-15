@@ -322,9 +322,16 @@ sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind
 # may be helpful https://wiki.archlinux.org/title/Common_Access_Card
 mkdir /dod-certs
 wget https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_DoD.zip --directory-prefix /dod-certs
-unzip /dod-certs/certificates_pkcs7_DoD.zip
+unzip /dod-certs/certificates_pkcs7_DoD.zip -d /dod-certs/
 
-#for n in $(ls /dod-certs/* | grep Chrome); do certutil -d sql:$HOME/.pki/nssdb -A -t TC -n $n -i $n; done
+# for each cert file...
+# -A means “add certificate”
+# -n means “nickname to give the certificate”
+# -t stands for “trustargs” - there are 3 arguments, comma separated
+# Using “C,,” as the trustargs means we trust this certificate as a root CA for SSL only (not for email or object signing; see trustargs explanation)
+# -i means “input file” and is followed by the full path to the file
+# -d means “directory” and is followed by the path to the nssdb directory
+for n in $(ls /dod-certs/*/p7b); do certutil -d sql:/home/$(logname)/.pki/nssdb -A -t TC -n $n -i $n; done
 
 
 ##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
