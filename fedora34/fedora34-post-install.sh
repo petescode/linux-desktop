@@ -202,6 +202,7 @@ declare -a packages=(
     "icedtea-web"
     "keepassxc"
     "nmap"
+    "nss-tools"
     "perl-Image-ExifTool"
     "pinta"
     "p7zip"
@@ -309,11 +310,12 @@ logind="/etc/systemd/logind.conf"
 sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind
 
 # success test
-if [[ egrep "^HandleLidSwitch" $logind ]]; then
-    echo -e "$(date +%T) set laptop lid close settings in $logind" >> $logfile
-else
-    echo -e "$(date +%T) ERROR: attempted to modify file $logind but did not succeed" >> $logfile
-fi
+# bad test - refine plz
+#if [[ egrep "^HandleLidSwitch" $logind ]]; then
+#    echo -e "$(date +%T) set laptop lid close settings in $logind" >> $logfile
+#else
+#    echo -e "$(date +%T) ERROR: attempted to modify file $logind but did not succeed" >> $logfile
+#fi
 
 
 ##### INSTALL DOD CERTS FOR CHROME
@@ -321,6 +323,8 @@ fi
 mkdir /dod-certs
 wget https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_DoD.zip --directory-prefix /dod-certs
 unzip /dod-certs/certificates_pkcs7_DoD.zip
+
+#for n in $(ls /dod-certs/* | grep Chrome); do certutil -d sql:$HOME/.pki/nssdb -A -t TC -n $n -i $n; done
 
 
 ##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
