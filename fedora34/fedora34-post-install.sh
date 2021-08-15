@@ -11,12 +11,8 @@ Notes:
     - Have not really figured out all the laptop lid power options. Seeing inconsistent behavior on my laptop
 
 DEVELOPMENT:
-    - work on GNOME settings
-    - add PS1 variable
-    - LS_COLORS
     - CAC support
     - download and install displaylink-rpm
-    - clamav setup
     - disable bluetooth
     - power settings
         - lid close action
@@ -318,6 +314,13 @@ if [[ egrep "^HandleLidSwitch" $logind ]]; then
 else
     echo -e "$(date +%T) ERROR: attempted to modify file $logind but did not succeed" >> $logfile
 fi
+
+
+##### INSTALL DOD CERTS FOR CHROME
+# may be helpful https://wiki.archlinux.org/title/Common_Access_Card
+mkdir /dod-certs
+wget https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_DoD.zip --directory-prefix /dod-certs
+unzip /dod-certs/certificates_pkcs7_DoD.zip
 
 
 ##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
