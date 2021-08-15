@@ -335,7 +335,13 @@ unzip /dod-certs/certificates_pkcs7_DoD.zip -d /dod-certs/
 # -i means “input file” and is followed by the full path to the file
 # -d means “directory” and is followed by the path to the nssdb directory
 
-for n in $(ls /dod-certs/*/*p7b); do certutil -d sql:/home/$(logname)/.pki/nssdb -A -t TC -n $n -i $n; done
+#for n in $(ls /dod-certs/*/*p7b); do certutil -d sql:/home/$(logname)/.pki/nssdb -A -t TC -n $n -i /dod-certs/*/$n; done
+
+# still gives errors. suspect has to do with p7b format
+pathname=$(ls -d /dod-certs/)
+for i in $(ls /dod-certs/*/*p7b); do
+    certutil -A -n “$i” -t “C,,” -i “$pathname/$i” -d sql:/home/$(logname)/.pki/nssdb;
+done
 
 
 ##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
