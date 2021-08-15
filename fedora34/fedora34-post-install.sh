@@ -8,6 +8,8 @@ Notes:
 
     - Did not find info for MS Teams telemetry, might not be there - revisit this one day
 
+    - Have not really figured out all the laptop lid power options. Seeing inconsistent behavior on my laptop
+
 DEVELOPMENT:
     - work on GNOME settings
     - add PS1 variable
@@ -265,6 +267,7 @@ if flatpak install flathub com.slack.Slack -y; then
 else
     echo -e "$(date +%T) ERROR: failed installing Slack Flatpak" >> $logfile
 fi
+
 
 ##### GNOME 40 settings
 
