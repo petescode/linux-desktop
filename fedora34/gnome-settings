@@ -22,3 +22,16 @@ titlebar-font='DejaVu Sans Bold 11'
 
 [org/gnome/shell]
 favorite-apps=['firefox.desktop', 'google-chrome.desktop', 'org.gnome.Nautilus.desktop', 'code.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Calculator.desktop', 'org.keepassxc.KeePassXC.desktop']
+
+# When to lock the screen
+[org/gnome/desktop/session]
+idle-delay=1800
+
+[org/gnome/settings/daemon/plugins/power]
+# when to go to sleep when on charger
+sleep-inactive-ac-timeout=3600
+
+# what to do once the timer has been reach - in this case, looks like nothing
+sleep-inactive-ac-type='nothing'
+
+#https://people.gnome.org/~pmkovar/system-admin-guide/automatic-logout.html

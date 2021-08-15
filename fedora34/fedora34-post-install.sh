@@ -16,6 +16,18 @@ DEVELOPMENT:
     - download and install displaylink-rpm
     - clamav setup
     - disable bluetooth
+    - power settings
+        - lid close action
+        - blank screen after
+        - sleep after
+    
+    - for power settings, when you use the Tweak tool to change lid close action on power, it actually creates this file:
+       /usr/libexec/gnome-tweak-tool-lid-inhibitor
+       which is a Python 3 script.
+       The location of this file has moved at least 3 times in the past several years.
+       May be easier to adjust settings in systemd
+       See last answer (most recent and should be most accurate):
+       https://unix.stackexchange.com/questions/307497/gnome-disable-sleep-on-lid-close/307498
 
     - add logging for all these new features
 '
