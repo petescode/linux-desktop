@@ -319,6 +319,9 @@ sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind
 
 
 ##### INSTALL DOD CERTS FOR CHROME
+
+# need to do an if exists logic on this, or this script cant be run multiple times in a row
+
 # may be helpful https://wiki.archlinux.org/title/Common_Access_Card
 mkdir /dod-certs
 wget https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_DoD.zip --directory-prefix /dod-certs
@@ -331,7 +334,8 @@ unzip /dod-certs/certificates_pkcs7_DoD.zip -d /dod-certs/
 # Using “C,,” as the trustargs means we trust this certificate as a root CA for SSL only (not for email or object signing; see trustargs explanation)
 # -i means “input file” and is followed by the full path to the file
 # -d means “directory” and is followed by the path to the nssdb directory
-for n in $(ls /dod-certs/*/p7b); do certutil -d sql:/home/$(logname)/.pki/nssdb -A -t TC -n $n -i $n; done
+
+for n in $(ls /dod-certs/*/*p7b); do certutil -d sql:/home/$(logname)/.pki/nssdb -A -t TC -n $n -i $n; done
 
 
 ##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
