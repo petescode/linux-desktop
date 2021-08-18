@@ -27,6 +27,15 @@ DEVELOPMENT:
        See last answer (most recent and should be most accurate):
        https://unix.stackexchange.com/questions/307497/gnome-disable-sleep-on-lid-close/307498
 
+    - CAC support
+        shows where to download latest versions of DoD certs: https://wiki.archlinux.org/title/Common_Access_Card
+        p7b is a combination of several certificates
+        reference drive documentation on fedora 28
+          import .so object
+          import certificate files
+        see Red Hat documentation for importing - does not use modutil
+          https://access.redhat.com/documentation/en-us/red_hat_certificate_system/9/html/administration_guide_common_criteria_edition/importing_root_certificate
+
     - add logging for all these new features
 '
 
@@ -203,6 +212,7 @@ declare -a packages=(
     "keepassxc"
     "nmap"
     "nss-tools"
+    "papirus-icon-theme"
     "perl-Image-ExifTool"
     "pinta"
     "p7zip"
@@ -210,8 +220,8 @@ declare -a packages=(
     "terminator"
     "vim"
     "wireshark"
+    "wodim"
     "youtube-dl"
-    "papirus-icon-theme"
 )
 
 declare -a group_packages=(
@@ -307,7 +317,7 @@ dconf update
 #https://www.cyberciti.biz/faq/how-to-use-sed-to-find-and-replace-text-in-files-in-linux-unix-shell/
 #https://unix.stackexchange.com/questions/307497/gnome-disable-sleep-on-lid-close
 logind="/etc/systemd/logind.conf"
-sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind
+sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && echo -e "$(date +%T) set laptop lid switch settings in $logind" >> $logfile
 
 # success test
 # bad test - refine plz
@@ -319,29 +329,9 @@ sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind
 
 
 ##### INSTALL DOD CERTS FOR CHROME
-
 # need to do an if exists logic on this, or this script cant be run multiple times in a row
 
-# may be helpful https://wiki.archlinux.org/title/Common_Access_Card
-mkdir /dod-certs
-wget https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_DoD.zip --directory-prefix /dod-certs
-unzip /dod-certs/certificates_pkcs7_DoD.zip -d /dod-certs/
-
-# for each cert file...
-# -A means “add certificate”
-# -n means “nickname to give the certificate”
-# -t stands for “trustargs” - there are 3 arguments, comma separated
-# Using “C,,” as the trustargs means we trust this certificate as a root CA for SSL only (not for email or object signing; see trustargs explanation)
-# -i means “input file” and is followed by the full path to the file
-# -d means “directory” and is followed by the path to the nssdb directory
-
-#for n in $(ls /dod-certs/*/*p7b); do certutil -d sql:/home/$(logname)/.pki/nssdb -A -t TC -n $n -i /dod-certs/*/$n; done
-
-# still gives errors. suspect has to do with p7b format
-pathname=$(ls -d /dod-certs/)
-for i in $(ls /dod-certs/*/*p7b); do
-    certutil -A -n “$i” -t “C,,” -i “$pathname/$i” -d sql:/home/$(logname)/.pki/nssdb;
-done
+##### INSTALL DOD CERTS FOR FIREFOX
 
 
 ##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
@@ -350,8 +340,8 @@ export POWERSHELL_TELEMETRY_OPTOUT=1
 
 files=$(find /home -type f -name ".bash_profile")
 for i in $files; do
-  bash -c "echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $i"
-  bash -c "echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> $i"
+  bash -c "echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $i" && echo -e "$(date +%T) set disable telemetry settings for .Net CLI" >> $logfile
+  bash -c "echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> $i" && echo -e "$(date +%T) set disable telemetry settings for PowerShell" >> $logfile
 done
 
 
