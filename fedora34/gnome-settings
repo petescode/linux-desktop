@@ -20,7 +20,6 @@ button-layout='close,minimize,maximize:appmenu'
 theme='Adwaita-dark'
 titlebar-font='DejaVu Sans Bold 11'
 
-# this does not appear to be working - needs testing
 [org/gnome/shell]
 favorite-apps=['firefox.desktop', 'google-chrome.desktop', 'org.gnome.Nautilus.desktop', 'code.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Calculator.desktop', 'org.keepassxc.KeePassXC.desktop']
 
@@ -28,12 +27,7 @@ favorite-apps=['firefox.desktop', 'google-chrome.desktop', 'org.gnome.Nautilus.d
 [org/gnome/desktop/session]
 idle-delay=1800
 
-[org/gnome/settings/daemon/plugins/power]
 # when to go to sleep when on charger
+[org/gnome/settings/daemon/plugins/power]
 sleep-inactive-ac-timeout=3600
-
-# what to do once the timer has been reach - in this case, looks like nothing
-# ! this is missing the setting brackets !
 sleep-inactive-ac-type='nothing'
-
-#https://people.gnome.org/~pmkovar/system-admin-guide/automatic-logout.html
