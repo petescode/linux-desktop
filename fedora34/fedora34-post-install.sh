@@ -2,24 +2,34 @@
 : '
 Notes:
     - No more nVidia support in this script
+
     - Fedora 34 shipped with GNOME 40, which is a big departure from previous GNOME versions; hence a lot of changes around GNOME settings
 
     - Changing default fonts - still relevant: https://bbs.archlinux.org/viewtopic.php?id=120604
 
     - Did not find info for MS Teams telemetry, might not be there - revisit this one day
 
-DEVELOPMENT:
-    - work on GNOME settings
-    - add PS1 variable
-    - LS_COLORS
-    - CAC support
-    - download and install displaylink-rpm
-    - clamav setup
-    - disable bluetooth
-    - add timestamp to log file name so script can be run multiple times
-    - convert the rest of GNOME settings file creations to static files
+    - Have not really figured out all the laptop lid power options. Seeing inconsistent behavior on my laptop
 
-    - add logging for all these new features
+    - clamav-install.sh and cert-install.sh are currently benign; for future development
+
+DEVELOPMENT:
+    - CAC support
+    - clamav install
+    - download and install displaylink-rpm
+    - disable bluetooth
+    - power settings
+        - lid close action
+        - blank screen after
+        - sleep after
+    
+    - for power settings, when you use the Tweak tool to change lid close action on power, it actually creates this file:
+       /usr/libexec/gnome-tweak-tool-lid-inhibitor
+       which is a Python 3 script.
+       The location of this file has moved at least 3 times in the past several years.
+       May be easier to adjust settings in systemd
+       See last answer (most recent and should be most accurate):
+       https://unix.stackexchange.com/questions/307497/gnome-disable-sleep-on-lid-close/307498
 '
 
 if [[ $(id -u) -ne 0 ]]; then
@@ -27,7 +37,7 @@ if [[ $(id -u) -ne 0 ]]; then
     exit 1
 fi
 
-logfile="/var/log/fedora34-gnome-post-install-script.log"
+logfile="/var/log/fedora34-gnome-post-install-script_$(date +"%Y-%m-%d@%H:%M").log"
 
 
 ##### START LOG FILE
@@ -129,7 +139,7 @@ enabled=1
 gpgcheck=1
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF
-if [[ -f /etc/yum.repos.d/ms-teams.repo ]]; then
+if [[ -f /etc/yum.repos.d/teams.repo ]]; then
     echo -e "$(date +%T) installed Microsoft Teams repository" >> $logfile
 else
     echo -e "$(date +%T) ERROR (FATAL): failed installing Microsoft Teams repository" >> $logfile
@@ -194,6 +204,8 @@ declare -a packages=(
     "icedtea-web"
     "keepassxc"
     "nmap"
+    "nss-tools"
+    "papirus-icon-theme"
     "perl-Image-ExifTool"
     "pinta"
     "p7zip"
@@ -201,8 +213,8 @@ declare -a packages=(
     "terminator"
     "vim"
     "wireshark"
+    "wodim"
     "youtube-dl"
-    "papirus-icon-theme"
 )
 
 declare -a group_packages=(
@@ -256,88 +268,32 @@ else
     echo -e "$(date +%T) ERROR: failed installing Slack Flatpak" >> $logfile
 fi
 
+
 ##### GNOME 40 settings
 
 # https://help.gnome.org/admin/system-admin-guide/stable/dconf-custom-defaults.html.en
 
-# font settings
-# need to account for "Legacy Window Titles" (see gnome-tweaks)
-interface="/etc/dconf/db/local.d/01-fonts-gtk-and-icon-themes"
-cp ./01-fonts-gtk-and-icon-themes $interface
-chown $(logname):$(logname) $interface
-# success test
-if [[ -f $interface ]]; then
-    echo -e "$(date +%T) GNOME: set default fonts to DejaVu; icon theme to Papirus; GTK theme to Adwaita-dark" >> $logfile
-else
-    echo -e "$(date +%T) ERROR: attempted to create file $interface but did not succeed" >> $logfile
-fi
-
-# nautilus settings (the window explorer)
-nautilus="/etc/dconf/db/local.d/02-nautilus"
-cat > $nautilus << EOF
-# Custom default GNOME settings for Nautilus
-[org/gnome/nautilus/preferences]
-default-folder-viewer='list-view'
-thumbnail-limit='100'
-EOF
-# success test
-if [[ -f $nautilus ]]; then
-    echo -e "$(date +%T) GNOME: set default settings for Nautilus" >> $logfile
-else
-    echo -e "$(date +%T) ERROR: attempted to create file $nautilus but did not succeed" >> $logfile
-fi
-# have to delete the thumbnail cache or changes will not take effect
-# thumbnail directory does not get created until a preview is generated in Nautilus for the first time
-rm -r /home/$(logname)/.cache/thumbnails/
-
-# more nautilus settings but they are stored somewhere else
-filechooser="/etc/dconf/db/local.d/03-file-chooser-nautilus"
-cp ./03-file-chooser-nautilus $filechooser
-chown $(logname):$(logname) $filechooser
-# success test
-if [[ -f $filechooser ]]; then
-    echo -e "$(date +%T) GNOME: set default sort order to directories first; show hidden files" >> $logfile
-else
-    echo -e "$(date +%T) ERROR: attempted to create file $filechooser but did not succeed" >> $logfile
-fi
-
 # desktop settings
-desktop="/etc/dconf/db/local.d/04-desktop"
-cat > $desktop << EOF
-# Custom default GNOME settings for desktop
-[org/gnome/desktop/wm/preferences]
-button-layout='close,minimize,maximize:appmenu'
-theme='Adwaita-dark'
-titlebar-font='DejaVu Sans Bold 11'
-EOF
+settings_file="/etc/dconf/db/local.d/01-gnome-settings"
+cp ./gnome-settings $settings_file
 # success test
-if [[ -f $desktop ]]; then
-    echo -e "$(date +%T) GNOME: set default settings for desktop" >> $logfile
+if [[ -f $settings_file ]]; then
+    echo -e "$(date +%T) GNOME: set default settings - config file is $settings_file" >> $logfile
 else
-    echo -e "$(date +%T) ERROR: attempted to create file $desktop but did not succeed" >> $logfile
+    echo -e "$(date +%T) ERROR: attempted to create file $settings_file but did not succeed" >> $logfile
 fi
 
-# shell settings
-gnome_shell="/etc/dconf/db/local.d/05-shell"
-cat > $gnome_shell << EOF
-# Custom default GNOME settings for shell
-[org/gnome/shell]
-favorite-apps=['firefox.desktop', 'google-chrome.desktop', 'org.gnome.Nautilus.desktop', 'code.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Calculator.desktop', 'org.keepassxc.KeePassXC.desktop']
-EOF
-# success test
-if [[ -f $gnome_shell ]]; then
-    echo -e "$(date +%T) GNOME: set default settings for GNOME shell" >> $logfile
-else
-    echo -e "$(date +%T) ERROR: attempted to create file $gnome_shell but did not succeed" >> $logfile
-fi
 # need to remove the existing user settings so it reloads from the new defaults that you've just setup
 # otherwise, existing user settings override the defaults and no change occurs
 rm /home/$(logname)/.config/dconf/user
 
+# have to delete the thumbnail cache or changes will not take effect
+# thumbnail directory does not get created until a preview is generated in Nautilus for the first time
+rm -r /home/$(logname)/.cache/thumbnails/
 
 # default file associations with applications
 mimeapps="/home/$(logname)/.config/mimeapps.list"
-cp ./fedora34-mimeapps.list $mimeapps
+cp ./mimeapps.list $mimeapps
 chown $(logname):$(logname) $mimeapps
 # success test
 if [[ -f $mimeapps ]]; then
@@ -349,14 +305,36 @@ fi
 dconf update
 
 
+##### laptop lid close
+# but this would work all the time, not just when plugged into power
+#https://www.cyberciti.biz/faq/how-to-use-sed-to-find-and-replace-text-in-files-in-linux-unix-shell/
+#https://unix.stackexchange.com/questions/307497/gnome-disable-sleep-on-lid-close
+logind="/etc/systemd/logind.conf"
+sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && echo -e "$(date +%T) set laptop lid switch settings in $logind" >> $logfile
+
+# success test
+# bad test - refine plz
+#if [[ egrep "^HandleLidSwitch" $logind ]]; then
+#    echo -e "$(date +%T) set laptop lid close settings in $logind" >> $logfile
+#else
+#    echo -e "$(date +%T) ERROR: attempted to modify file $logind but did not succeed" >> $logfile
+#fi
+
+
+##### INSTALL DOD CERTS FOR CHROME
+# need to do an if exists logic on this, or this script cant be run multiple times in a row
+
+##### INSTALL DOD CERTS FOR FIREFOX
+
+
 ##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export POWERSHELL_TELEMETRY_OPTOUT=1
 
 files=$(find /home -type f -name ".bash_profile")
 for i in $files; do
-  bash -c "echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $i"
-  bash -c "echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> $i"
+  bash -c "echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $i" && echo -e "$(date +%T) set disable telemetry settings for .Net CLI" >> $logfile
+  bash -c "echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> $i" && echo -e "$(date +%T) set disable telemetry settings for PowerShell" >> $logfile
 done
 
 
