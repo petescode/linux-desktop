@@ -2,6 +2,7 @@
 : '
 Notes:
     - No more nVidia support in this script
+
     - Fedora 34 shipped with GNOME 40, which is a big departure from previous GNOME versions; hence a lot of changes around GNOME settings
 
     - Changing default fonts - still relevant: https://bbs.archlinux.org/viewtopic.php?id=120604
@@ -10,8 +11,11 @@ Notes:
 
     - Have not really figured out all the laptop lid power options. Seeing inconsistent behavior on my laptop
 
+    - clamav-install.sh and cert-install.sh are currently benign; for future development
+
 DEVELOPMENT:
     - CAC support
+    - clamav install
     - download and install displaylink-rpm
     - disable bluetooth
     - power settings
@@ -26,17 +30,6 @@ DEVELOPMENT:
        May be easier to adjust settings in systemd
        See last answer (most recent and should be most accurate):
        https://unix.stackexchange.com/questions/307497/gnome-disable-sleep-on-lid-close/307498
-
-    - CAC support
-        shows where to download latest versions of DoD certs: https://wiki.archlinux.org/title/Common_Access_Card
-        p7b is a combination of several certificates
-        reference drive documentation on fedora 28
-          import .so object
-          import certificate files
-        see Red Hat documentation for importing - does not use modutil
-          https://access.redhat.com/documentation/en-us/red_hat_certificate_system/9/html/administration_guide_common_criteria_edition/importing_root_certificate
-
-    - add logging for all these new features
 '
 
 if [[ $(id -u) -ne 0 ]]; then
