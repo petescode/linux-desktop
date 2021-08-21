@@ -1,7 +1,9 @@
 # Linux Desktop
 For code that automates tasks for the Linux Desktop - primarily Fedora GNOME.
-Initial setup, repo management, package installation, data backups, etc.
-## fedora31-post-install.sh
-A post-install bash script that sets up my desired repositories and installs packages. Arrays are available for easily adding or removing packages to be modified.
-The script writes log messages to $logfile for review once it's complete.
-I still need to add my GNOME custom modifications if possible - however it's in a working state for repo and package setup.
+Initial setup, repo management, package installation, GNOME preferences, etc.
+## Fedora 34
+I've updated my Fedora post-install script to the current latest, Fedora 34.
+This script needs to be run with sudo or as root. It's meant to be run immediately after installing a default Fedora 34 GNOME installation.
+It will setup repos, install packages, and change GNOME default settings such as themes, icons, window button placement, etc.
+Arrays are available for easily adding or removing packages to be modified.
+The script writes log messages to a file in /var/log for review once it's complete.
