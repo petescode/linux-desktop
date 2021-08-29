@@ -206,6 +206,7 @@ declare -a packages=(
     "nmap"
     "nss-tools"
     "papirus-icon-theme"
+    "perl-Digest-SHA"
     "perl-Image-ExifTool"
     "pinta"
     "p7zip"
