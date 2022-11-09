@@ -253,8 +253,8 @@ echo -e "$(date +%T) installed the following package groups:\n$(for i in "${grou
 # https://help.gnome.org/admin/system-admin-guide/stable/dconf-custom-defaults.html.en
 
 # desktop settings
-settings_file="/etc/dconf/db/local.d/01-gnome-settings"
-cp ./gnome-settings $settings_file
+settings_file="/etc/dconf/db/local.d/01-gnome_settings"
+cp ./gnome_settings $settings_file
 # success test
 if [[ -f $settings_file ]]; then
     echo -e "$(date +%T) GNOME: set default settings - config file is $settings_file" >> $logfile
@@ -320,16 +320,10 @@ done
 
 
 ##### SET TELEMETRY FOR VISUAL STUDIO CODE
-# vscode builds the directory structure the first time you launch code
-su -c 'code &' $(logname) # need to run this as the user or the directory structure gets built for root
-sleep 3
-killall code
 codefile="/home/$(logname)/.config/Code/User/settings.json"
-cat >> $codefile << EOF
-{
-    "telemetry.telemetryLevel": "error"
-}
-EOF
+mkdir --parents "/home/$(logname)/.config/Code/User"
+cp ./vscode_settings.json $codefile
+
 # success test
 if grep -q "telemetry" $codefile; then
     echo -e "$(date +%T) GNOME: set telemetry settings for Visual Studio Code" >> $logfile
