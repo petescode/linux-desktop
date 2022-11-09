@@ -110,8 +110,8 @@ else
     exit 1
 fi
 
-# Microsoft PowerShell core repo https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7.1#fedora
-curl https://packages.microsoft.com/config/rhel/7/prod.repo | tee /etc/yum.repos.d/microsoft.repo && echo -e "$(date +%T) installed Microsoft PowerShell repository" >> $logfile
+# install Microsoft PowerShell repo
+curl https://packages.microsoft.com/config/rhel/8/prod.repo | tee /etc/yum.repos.d/microsoft.repo && echo -e "$(date +%T) installed Microsoft PowerShell repository" >> $logfile
 
 # Google Chrome repo 
 if dnf install fedora-workstation-repositories -y && dnf config-manager --set-enabled google-chrome; then
