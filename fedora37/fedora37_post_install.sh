@@ -323,6 +323,7 @@ done
 codefile="/home/$(logname)/.config/Code/User/settings.json"
 mkdir --parents "/home/$(logname)/.config/Code/User"
 cp ./vscode_settings.json $codefile
+chown --recursive $(logname):$(logname) "/home/$(logname)/.config/Code"
 
 # success test
 if grep -q "telemetry" $codefile; then
@@ -333,6 +334,8 @@ fi
 
 
 ##### Setup golang development environment
+mkdir --parents "/home/$(logname)/go"
+echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc"
 
 
 ##### REPORTING
