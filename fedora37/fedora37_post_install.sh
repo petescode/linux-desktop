@@ -272,17 +272,17 @@ rm /home/$(logname)/.config/dconf/user
 # thumbnail directory does not get created until a preview is generated in Nautilus for the first time
 rm -r /home/$(logname)/.cache/thumbnails/
 
-# NEEDS UPDATE
-# # default file associations with applications
-# mimeapps="/home/$(logname)/.config/mimeapps.list"
-# cp ./mimeapps.list $mimeapps
-# chown $(logname):$(logname) $mimeapps
-# # success test
-# if [[ -f $mimeapps ]]; then
-#     echo -e "$(date +%T) GNOME: set default settings for application file associations" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR: attempted to create file $mimeapps but did not succeed" >> $logfile
-# fi
+
+# default file associations with applications
+mimeapps="/home/$(logname)/.config/mimeapps.list"
+cp ./mimeapps.list $mimeapps
+chown $(logname):$(logname) $mimeapps
+# success test
+if [[ -f $mimeapps ]]; then
+    echo -e "$(date +%T) GNOME: set default settings for application file associations" >> $logfile
+else
+    echo -e "$(date +%T) ERROR: attempted to create file $mimeapps but did not succeed" >> $logfile
+fi
 
 dconf update
 
