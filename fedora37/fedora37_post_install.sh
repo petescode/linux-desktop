@@ -1,6 +1,8 @@
 #!/bin/bash
 : '
 Notes:
+    - youtube-dl replaced by yt-dlp (fork) due to abandonment and throttling
+
     - Changing default fonts - still relevant: https://bbs.archlinux.org/viewtopic.php?id=120604
 
     - Have not really figured out all the laptop lid power options. Seeing inconsistent behavior on my laptop
@@ -207,7 +209,7 @@ declare -a packages=(
     "vim"
     "wireshark"
     "wodim"
-    "youtube-dl"
+    "yt-dlp"
 )
 
 declare -a group_packages=(
@@ -336,6 +338,11 @@ fi
 ##### Setup golang development environment
 mkdir --parents "/home/$(logname)/go"
 echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc"
+
+
+##### set Firefox settings
+
+##### set terminal shortcut setting
 
 
 ##### REPORTING
