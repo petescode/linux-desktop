@@ -140,27 +140,6 @@ else
 fi
 
 
-##### REMOVE UNWANTED PACKAGES
-clear
-echo -e "\nREMOVE UNWANTED PACKAGES\n"
-sleep 1
-
-declare -a unwanted_packages=(
-    "cheese"
-    "gnome-boxes"
-    "gnome-contacts"
-    "gnome-maps"
-    "rhythmbox"
-    "simple-scan"
-)
-
-# removes all packages with one command
-dnf remove $(echo ${unwanted_packages[@]}) -y && \
-echo -e "$(date +%T) removed the following packages:\n$(for i in ${unwanted_packages[@]}; do echo "  $i"; done)" >> $logfile
-dnf autoremove -y
-dnf clean all
-
-
 ##### UPDATE EXISTING PACKAGES
 clear
 echo -e "\nUPDATE EXISTING PACKAGES\n"
@@ -205,6 +184,7 @@ declare -a packages=(
     "p7zip"
     "shutter"
     "smartmontools"
+    "sqlite"
     "terminator"
     "vim"
     "wireshark"
@@ -248,6 +228,26 @@ fi
 dnf groupinstall $(echo ${group_packages[@]}) -y && \
 echo -e "$(date +%T) installed the following package groups:\n$(for i in "${group_packages[@]}"; do echo "  $i"; done)" >> $logfile
 
+
+##### REMOVE UNWANTED PACKAGES
+clear
+echo -e "\nREMOVE UNWANTED PACKAGES\n"
+sleep 1
+
+declare -a unwanted_packages=(
+    "cheese"
+    "gnome-boxes"
+    "gnome-contacts"
+    "gnome-maps"
+    "rhythmbox"
+    "simple-scan"
+)
+
+# removes all packages with one command
+dnf remove $(echo ${unwanted_packages[@]}) -y && \
+echo -e "$(date +%T) removed the following packages:\n$(for i in ${unwanted_packages[@]}; do echo "  $i"; done)" >> $logfile
+dnf autoremove -y
+dnf clean all
 
 
 ##### GNOME 43 settings
@@ -303,10 +303,7 @@ sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && echo -e 
 #fi
 
 
-##### INSTALL DOD CERTS FOR CHROME
-# need to do an if exists logic on this, or this script cant be run multiple times in a row
-
-##### INSTALL DOD CERTS FOR FIREFOX
+##### set terminal shortcut setting
 
 
 ##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
@@ -335,14 +332,43 @@ else
 fi
 
 
-##### Setup golang development environment
+##### SETUP GOLANG DEVELOPMENT ENVIRONMENT
 mkdir --parents "/home/$(logname)/go"
-echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc"
+echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
+&& echo -e "$(date +%T) configured golang" >> $logfile
 
 
-##### set Firefox settings
+##### FIREFOX SETTINGS
 
-##### set terminal shortcut setting
+# FIREFOX BOOKMARKS
+# If places.sqlite is missing then Firefox will 
+#   rebuild the bookmarks from the most recent JSON backup in the bookmarkbackups folder 
+ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -type d -name "*default-release")
+cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
+
+# kill firefox process before proceeding
+pkill --full firefox
+rm $ff_profile_dir/places.sqlite
+
+echo -e "$(date +%T) set Firefox bookmarks" >> $logfile
+
+# FIREFOX STARTUP OPTIONS
+
+# FIREFOX DRM SETTINGS
+
+# FIREFOX HOME SETTINGS
+
+# FIREFOX PRIVACY AND SECURITY SETTINGS
+
+# FIREFOX INSTALL CERTIFICATES
+
+
+
+##### CHROME SETTINGS
+# CHROME INSTALL CERTIFICATES
+# need to do an if exists logic on this, or this script cant be run multiple times in a row
+
+
 
 
 ##### REPORTING
