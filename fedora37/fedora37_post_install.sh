@@ -359,7 +359,7 @@ echo -e "$(date +%T) set Firefox bookmarks" >> $logfile
 # FIREFOX ALL USER SETTINGS
 # https://github.com/arkenfox/user.js
 # http://kb.mozillazine.org/User.js_file
-cp ./userjs $ff_profile_dir/ && echo -e "$(date +%T) set Firefox preferences via user.js" >> $logfile
+cp ./user.js $ff_profile_dir/ && echo -e "$(date +%T) set Firefox preferences via user.js" >> $logfile
 
 # FIREFOX INSTALL CERTIFICATES
 
