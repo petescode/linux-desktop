@@ -1,6 +1,8 @@
 #!/bin/bash
 : '
 Notes:
+    - Format of the Firefox bookmarks file MUST conform to "bookmarks-<date>.jsonlz4" or it will not be found
+
     - youtube-dl replaced by yt-dlp (fork) due to abandonment and throttling
 
     - Changing default fonts - still relevant: https://bbs.archlinux.org/viewtopic.php?id=120604
@@ -38,9 +40,10 @@ logfile="/var/log/fedora37-gnome-post-install-script_$(date +"%Y-%m-%d@%H:%M").l
 echo -e "SCRIPT START: $(date +%c)" > $logfile
 start=$(date +%s)
 
+clear
+echo -e "WARNING: Do not use Fedora while the script runs.\n\n"
 
 ##### SET HOSTNAME
-clear
 current_name=$(hostnamectl status --static)
 echo -e "Current hostname: $current_name"
 read -r -p $'\nWould you like to change the hostname? [y/n]\n(Default is no)\n' response
@@ -333,7 +336,7 @@ fi
 
 
 ##### SETUP GOLANG DEVELOPMENT ENVIRONMENT
-mkdir --parents "/home/$(logname)/go"
+mkdir --parents "/home/$(logname)/go" && chown $(logname):$(logname) "/home/$(logname)/go"
 echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
 && echo -e "$(date +%T) configured golang" >> $logfile
 
@@ -352,13 +355,11 @@ rm $ff_profile_dir/places.sqlite
 
 echo -e "$(date +%T) set Firefox bookmarks" >> $logfile
 
-# FIREFOX STARTUP OPTIONS
 
-# FIREFOX DRM SETTINGS
-
-# FIREFOX HOME SETTINGS
-
-# FIREFOX PRIVACY AND SECURITY SETTINGS
+# FIREFOX ALL USER SETTINGS
+# https://github.com/arkenfox/user.js
+# http://kb.mozillazine.org/User.js_file
+cp ./userjs $ff_profile_dir/ && echo -e "$(date +%T) set Firefox preferences via user.js" >> $logfile
 
 # FIREFOX INSTALL CERTIFICATES
 
