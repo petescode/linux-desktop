@@ -267,6 +267,11 @@ else
     echo -e "$(date +%T) ERROR: attempted to create file $settings_file but did not succeed" >> $logfile
 fi
 
+# nautilus changes do work with above ^
+# gsettings from command line is consistent though
+runuser --login $(logname) --command 'gsettings set org.gnome.nautilus.preferences default-folder-viewer "list-view"' 
+
+
 # need to remove the existing user settings so it reloads from the new defaults that you've just setup
 # otherwise, existing user settings override the defaults and no change occurs
 rm /home/$(logname)/.config/dconf/user

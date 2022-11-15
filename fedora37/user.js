@@ -1,5 +1,7 @@
 // For reference: https://github.com/arkenfox/user.js/blob/master/user.js
 
+// Still need to remove "Ask to save logins and passwords for websites", "Autofill credit cards"
+
 user_pref("browser.startup.page", 0);
 user_pref("browser.startup.homepage", "about:blank");
 user_pref("browser.newtabpage.enabled", false);
