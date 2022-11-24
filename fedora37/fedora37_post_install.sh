@@ -176,6 +176,7 @@ declare -a packages=(
     "darktable"
     "dconf-editor"
     "dnf-utils"
+    "gnome-screenshot"
     "gnome-tweaks"
     "golang"
     "keepassxc"
@@ -185,7 +186,6 @@ declare -a packages=(
     "perl-Image-ExifTool"
     "pinta"
     "p7zip"
-    "shutter"
     "smartmontools"
     "sqlite"
     "terminator"
@@ -311,6 +311,7 @@ sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && echo -e 
 #fi
 
 
+##### NEEDS UPDATE
 ##### set terminal shortcut setting
 
 
@@ -354,12 +355,14 @@ echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
 ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -type d -name "*default-release")
 cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
 
+### NEEDS UPDATE
+# does not work when Firefox was left open
 # kill firefox process before proceeding
 pkill --full firefox
 rm $ff_profile_dir/places.sqlite
 
 echo -e "$(date +%T) set Firefox bookmarks" >> $logfile
-
+### need to put a failure clause in here - log file did not show that this had failed
 
 # FIREFOX ALL USER SETTINGS
 # https://github.com/arkenfox/user.js
