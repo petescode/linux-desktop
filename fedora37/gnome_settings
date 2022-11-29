@@ -3,6 +3,11 @@
 sort-directories-first=true
 show-hidden=true
 
+# Both file-chooser keys appear active in Fedora37
+[org/gtk/gtk4/settings/file-chooser]
+sort-directories-first=true
+show-hidden=true
+
 [org/gnome/desktop/interface]
 font-name='DejaVu Sans 11'
 monospace-font-name='DejaVu Sans Mono 11'

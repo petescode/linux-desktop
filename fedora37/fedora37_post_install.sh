@@ -271,8 +271,9 @@ else
     echo -e "$(date +%T) ERROR: attempted to create file $settings_file but did not succeed" >> $logfile
 fi
 
-# nautilus changes do work with above ^
-# gsettings from command line is consistent though
+# so the Nautilus changes work fine as long as the user has not opened Nautilus once already before the script is run
+# in that case, something is overriding
+
 
 # NEEDS REVIEW
 # did they or did they not work? commenting this out for testing
@@ -392,7 +393,16 @@ cp ./user.js $ff_profile_dir/ && echo -e "$(date +%T) set Firefox preferences vi
 
 ##### VM directories prepare
 mkdir --parents "/home/$(logname)/Documents/VMs/ISOs"
-chown --recursive $(logname):$(logname) "/home/$(logname)/Documents/VMs/ISOs"
+chown --recursive $(logname):$(logname) "/home/$(logname)/Documents/VMs"
+
+# NEEDS REVIEW - for testing
+# need to remove the existing user settings so it reloads from the new defaults that you've just setup
+# otherwise, existing user settings override the defaults and no change occurs
+rm /home/$(logname)/.config/dconf/user
+
+# have to delete the thumbnail cache or changes will not take effect
+# thumbnail directory does not get created until a preview is generated in Nautilus for the first time
+rm -r /home/$(logname)/.cache/thumbnails/
 
 
 ##### REPORTING
