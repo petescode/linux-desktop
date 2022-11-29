@@ -319,8 +319,8 @@ sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && echo -e 
 # https://www.systutorials.com/docs/linux/man/5-terminator_config/
 terminator_dir="/home/$(logname)/.config/terminator"
 mkdir --parents $terminator_dir
-chown --recursive $(logname):$(logname) $terminator_dir
 cp ./terminator_config "$terminator_dir/config"
+chown --recursive $(logname):$(logname) $terminator_dir
 
 
 ##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
