@@ -271,7 +271,10 @@ fi
 
 # nautilus changes do work with above ^
 # gsettings from command line is consistent though
-runuser --login $(logname) --command 'gsettings set org.gnome.nautilus.preferences default-folder-viewer "list-view"' 
+
+# NEEDS REVIEW
+# did they or did they not work? commenting this out for testing
+#runuser --login $(logname) --command 'gsettings set org.gnome.nautilus.preferences default-folder-viewer "list-view"' 
 
 
 # need to remove the existing user settings so it reloads from the new defaults that you've just setup
@@ -399,8 +402,8 @@ stop=$(date +%s)
 runtime=$((stop-start))
 echo -e "SCRIPT END: $(date +%c)" >> $logfile
 echo -e "RUN TIME: $runtime seconds (~$(($runtime / 60)) minutes)" >> $logfile
-clear
-cat $logfile
+#clear
+#cat $logfile
 
 
 ##### REBOOT
