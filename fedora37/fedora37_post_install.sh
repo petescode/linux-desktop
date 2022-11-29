@@ -1,6 +1,9 @@
 #!/bin/bash
 : '
 Notes:
+    - For figuring out your custom GNOME settings
+        https://askubuntu.com/questions/787451/where-does-ubuntu-gnome-store-the-keyboard-shortcuts-configuration-file
+
     - Format of the Firefox bookmarks file MUST conform to "bookmarks-<date>.jsonlz4" or it will not be found
 
     - youtube-dl replaced by yt-dlp (fork) due to abandonment and throttling
@@ -155,7 +158,6 @@ clear
 echo -e "\nUPDATE & INSTALL MULTIMEDIA CODECS\n"
 
 # requires RPM Fusion repos https://rpmfusion.org/Configuration/
-# PackageKit-gstreamer-plugin no longer necessary to exclude - verify this
 dnf groupupdate multimedia --setop="install_weak_deps=False" -y
 dnf groupupdate sound-and-video -y
 
@@ -297,7 +299,7 @@ else
     echo -e "$(date +%T) ERROR: attempted to create file $mimeapps but did not succeed" >> $logfile
 fi
 
-dconf update
+sleep 1 && dconf update
 
 
 ##### laptop lid close
@@ -317,10 +319,6 @@ sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && echo -e 
 
 
 ##### NEEDS UPDATE (reporting)
-# set terminal shortcut keybinding for gnome
-# added to gnome_settings for test
-#https://askubuntu.com/questions/787451/where-does-ubuntu-gnome-store-the-keyboard-shortcuts-configuration-file
-
 # set terminator settings
 # https://www.systutorials.com/docs/linux/man/5-terminator_config/
 terminator_dir="/home/$(logname)/.config/terminator"
@@ -372,7 +370,7 @@ cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
 ### NEEDS UPDATE
 # does not work when Firefox was left open
 # kill firefox process before proceeding
-pkill --full firefox
+pkill --full firefox && sleep 1
 rm $ff_profile_dir/places.sqlite
 
 echo -e "$(date +%T) set Firefox bookmarks" >> $logfile
