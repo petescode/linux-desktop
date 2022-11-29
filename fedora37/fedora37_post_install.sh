@@ -314,6 +314,7 @@ sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && echo -e 
 
 ##### NEEDS UPDATE (reporting)
 # set terminal shortcut keybinding for gnome
+# added to gnome_settings for test
 
 # set terminator settings
 # https://www.systutorials.com/docs/linux/man/5-terminator_config/
