@@ -155,7 +155,8 @@ clear
 echo -e "\nUPDATE & INSTALL MULTIMEDIA CODECS\n"
 
 # requires RPM Fusion repos https://rpmfusion.org/Configuration/
-dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin -y
+# PackageKit-gstreamer-plugin no longer necessary to exclude - verify this
+dnf groupupdate multimedia --setop="install_weak_deps=False" -y
 dnf groupupdate sound-and-video -y
 
 
@@ -315,6 +316,7 @@ sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && echo -e 
 ##### NEEDS UPDATE (reporting)
 # set terminal shortcut keybinding for gnome
 # added to gnome_settings for test
+#https://askubuntu.com/questions/787451/where-does-ubuntu-gnome-store-the-keyboard-shortcuts-configuration-file
 
 # set terminator settings
 # https://www.systutorials.com/docs/linux/man/5-terminator_config/
