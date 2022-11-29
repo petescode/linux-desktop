@@ -12,6 +12,7 @@ Notes:
     - clamav-install.sh and cert-install.sh are currently benign; for future development
 
 DEVELOPMENT:
+    - need to create a separate script or at least function for writing to log file to clean up all this code
     - CAC support
     - clamav install
     - power settings
@@ -311,8 +312,15 @@ sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && echo -e 
 #fi
 
 
-##### NEEDS UPDATE
-##### set terminal shortcut setting
+##### NEEDS UPDATE (reporting)
+# set terminal shortcut keybinding for gnome
+
+# set terminator settings
+# https://www.systutorials.com/docs/linux/man/5-terminator_config/
+terminator_dir="/home/$(logname)/.config/terminator"
+mkdir --parents $terminator_dir
+chown --recursive $(logname):$(logname) $terminator_dir
+cp ./terminator_config "$terminator_dir/config"
 
 
 ##### DISABLE TELEMETRY FOR POWERSHELL AND DOTNET
@@ -378,6 +386,9 @@ cp ./user.js $ff_profile_dir/ && echo -e "$(date +%T) set Firefox preferences vi
 # need to do an if exists logic on this, or this script cant be run multiple times in a row
 
 
+##### VM directories prepare
+mkdir --parents "/home/$(logname)/Documents/VMs/ISOs"
+chown --recursive $(logname):$(logname) "/home/$(logname)/Documents/VMs/ISOs"
 
 
 ##### REPORTING
