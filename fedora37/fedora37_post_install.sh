@@ -32,20 +32,20 @@ DEVELOPMENT:
        https://unix.stackexchange.com/questions/307497/gnome-disable-sleep-on-lid-close/307498
 '
 
-# if [[ $(id -u) -ne 0 ]]; then
-#     echo -e "\nScript must be run as root! Exiting..."
-#     exit 1
-# fi
+if [[ $(id -u) -ne 0 ]]; then
+    echo -e "\nScript must be run as root! Exiting..."
+    exit 1
+fi
 
-# logfile="/var/log/fedora37-gnome-post-install-script_$(date +"%Y-%m-%d@%H:%M").log"
+logfile="/var/log/fedora37-gnome-post-install-script_$(date +"%Y-%m-%d@%H:%M").log"
 
 
-# ##### START LOG FILE
-# echo -e "SCRIPT START: $(date +%c)" > $logfile
-# start=$(date +%s)
+##### START LOG FILE
+echo -e "SCRIPT START: $(date +%c)" > $logfile
+start=$(date +%s)
 
-# clear
-# echo -e "WARNING: Do not use Fedora while the script runs.\n\n"
+clear
+echo -e "WARNING: Do not use Fedora while the script runs.\n\n"
 
 # ##### SET HOSTNAME
 # current_name=$(hostnamectl status --static)
