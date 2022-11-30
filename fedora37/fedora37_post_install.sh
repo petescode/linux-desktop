@@ -1,14 +1,27 @@
 #!/bin/bash
 : '
 Notes:
-    - For figuring out your custom GNOME settings
+    - GNOME settings discovery
         https://askubuntu.com/questions/787451/where-does-ubuntu-gnome-store-the-keyboard-shortcuts-configuration-file
+        dconf dump / > dconf_dump.conf
+        
+        Inspecting schemas
+        https://unix.stackexchange.com/questions/642604/certain-parameters-in-dconf-keyfiles-not-being-taken-into-account-used
+        cat /usr/share/glib-2.0/schemas/org.gnome.nautilus.gschema.xml
 
-    - Format of the Firefox bookmarks file MUST conform to "bookmarks-<date>.jsonlz4" or it will not be found
+        dconf settings
+        https://help.gnome.org/admin/system-admin-guide/stable/dconf-custom-defaults.html.en
+
+    - Firefox settings
+        https://github.com/arkenfox/user.js
+        http://kb.mozillazine.org/User.js_file
+        
+        Format of the Firefox bookmarks file MUST conform to "bookmarks-<date>.jsonlz4" or it will not be found
+
+    - Terminator settings
+        https://www.systutorials.com/docs/linux/man/5-terminator_config/
 
     - youtube-dl replaced by yt-dlp (fork) due to abandonment and throttling
-
-    - Changing default fonts - still relevant: https://bbs.archlinux.org/viewtopic.php?id=120604
 
     - Have not really figured out all the laptop lid power options. Seeing inconsistent behavior on my laptop
 
@@ -258,8 +271,6 @@ echo -e "WARNING: Do not use Fedora while the script runs.\n\n"
 
 
 ##### GNOME 43 settings
-# https://help.gnome.org/admin/system-admin-guide/stable/dconf-custom-defaults.html.en
-
 # if Nautilus is open while this runs settings do not take
 pkill --full nautilus && sleep 1
 
@@ -304,9 +315,7 @@ sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && echo -e 
 #fi
 
 
-##### NEEDS UPDATE (reporting)
-# set terminator settings
-# https://www.systutorials.com/docs/linux/man/5-terminator_config/
+##### TERMINATOR SETTINGS
 terminator_dir="/home/$(logname)/.config/terminator"
 mkdir --parents $terminator_dir
 cp ./terminator_config "$terminator_dir/config"
@@ -346,34 +355,27 @@ echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
 
 
 ##### FIREFOX SETTINGS
-
-# NEEDS UPDATE 
-# seems to be inconsistent - got a non-working FF on latest test
+# kill firefox process before proceeding or changes will not work
+pkill --full firefox && sleep 1
 
 # FIREFOX BOOKMARKS
-# If places.sqlite is missing then Firefox will 
-#   rebuild the bookmarks from the most recent JSON backup in the bookmarkbackups folder 
+# If places.sqlite is missing then Firefox will rebuild the bookmarks from the most recent JSON backup in the bookmarkbackups folder 
 ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -type d -name "*default-release")
 cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
 
-
-### NEEDS UPDATE
-# does not work when Firefox was left open
-# kill firefox process before proceeding
-pkill --full firefox && sleep 1
+# this database, which contains bookmarks among many other things, will get rebuilt upon next Firefox launch
 rm $ff_profile_dir/places.sqlite
 
 echo -e "$(date +%T) set Firefox bookmarks" >> $logfile
 ### need to put a failure clause in here - log file did not show that this had failed
 
-# FIREFOX ALL USER SETTINGS
-# https://github.com/arkenfox/user.js
-# http://kb.mozillazine.org/User.js_file
-cp ./user.js $ff_profile_dir/ && echo -e "$(date +%T) set Firefox preferences via user.js" >> $logfile
 
+# FIREFOX ALL USER SETTINGS
+cp ./user.js $ff_profile_dir/ && echo -e "$(date +%T) set Firefox preferences via user.js" >> $logfile
 
 # one recursive chown on the directory will get all files we modified 
 chown --recursive $(logname):$(logname) $ff_profile_dir
+
 
 # FIREFOX INSTALL CERTIFICATES
 
@@ -384,11 +386,12 @@ chown --recursive $(logname):$(logname) $ff_profile_dir
 # need to do an if exists logic on this, or this script cant be run multiple times in a row
 
 
-##### VM directories prepare
+##### VM DIRECTORY SETUP
 mkdir --parents "/home/$(logname)/Documents/VMs/ISOs"
 chown --recursive $(logname):$(logname) "/home/$(logname)/Documents/VMs"
 
-# NEEDS REVIEW - for testing
+
+##### CLEANUP
 # need to remove the existing user settings so it reloads from the new defaults that you've just setup
 # otherwise, existing user settings override the defaults and no change occurs
 rm /home/$(logname)/.config/dconf/user
