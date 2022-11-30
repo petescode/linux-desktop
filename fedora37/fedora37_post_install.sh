@@ -22,7 +22,9 @@ Notes:
         https://www.systutorials.com/docs/linux/man/5-terminator_config/
 
     - Repository setup
-        RPM Fusion free and nonfree https://rpmfusion.org/Configuration/
+        RPM Fusion free and nonfree repos: https://rpmfusion.org/Configuration/
+        RPM Fusion repos: https://rpmfusion.org/Configuration/
+        RPM Fusion tainted repos: https://rpmfusion.org/Configuration/
 
     - youtube-dl replaced by yt-dlp (fork) due to abandonment and throttling
 
@@ -113,155 +115,157 @@ echo -e "\nINSTALL NEW REPOSITORIES\n"
 
 if dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
 https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y; then
-    #echo -e "$(date +%T) installed RPM Fusion free and nonfree repositories" >> $logfile
     writelog "installed RPM Fusion free and nonfree repositories"
 else
-    #echo -e "$(date +%T) ERROR (FATAL): failed installing RPM Fusion free and nonfree repositories - exiting" >> $logfile
     writelog "ERROR (FATAL): failed installing RPM Fusion free and nonfree repositories - exiting"
     exit 1
 fi
 
-# # RPM Fusion tainted repos
-# if dnf install rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted -y; then
-#     echo -e "$(date +%T) installed RPM Fusion free tainted and nonfree tainted repositories" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR (FATAL): failed installing RPM Fusion free tainted and nonfree tainted repositories - exiting" >> $logfile
-#     exit 1
-# fi
+# RPM Fusion tainted repos
+if dnf install rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted -y; then
+    writelog "installed RPM Fusion free tainted and nonfree tainted repositories"
+else
+    writelog "ERROR (FATAL): failed installing RPM Fusion free tainted and nonfree tainted repositories - exiting"
+    exit 1
+fi
 
-# # Flatpak repo
-# if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
-#     echo -e "$(date +%T) installed Flathub repository" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR (FATAL): failed installing Flathub repository - exiting" >> $logfile
-#     exit 1
-# fi
+# Flatpak repo
+if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+    writelog "installed Flathub repository"
+else
+    writelog "ERROR (FATAL): failed installing Flathub repository - exiting"
+    exit 1
+fi
 
-# # Microsoft Visual Studio Code repo https://code.visualstudio.com/docs/setup/linux
-# rpm --import https://packages.microsoft.com/keys/microsoft.asc && echo -e "$(date +%T) imported Microsoft signing key" >> $logfile
+# Microsoft Visual Studio Code repo https://code.visualstudio.com/docs/setup/linux
+rpm --import https://packages.microsoft.com/keys/microsoft.asc && echo -e "$(date +%T) imported Microsoft signing key" >> $logfile
 
-# if echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo; then
-#     echo -e "$(date +%T) installed Visual Studio Code repository" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR (FATAL): failed installing Visual Studio Code repository - exiting" >> $logfile
-#     exit 1
-# fi
+if echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo; then
+    writelog "installed Visual Studio Code repository"
+else
+    writelog "ERROR (FATAL): failed installing Visual Studio Code repository - exiting"
+    exit 1
+fi
 
-# # install Microsoft PowerShell repo
-# curl https://packages.microsoft.com/config/rhel/8/prod.repo | tee /etc/yum.repos.d/microsoft.repo && echo -e "$(date +%T) installed Microsoft PowerShell repository" >> $logfile
+# install Microsoft PowerShell repo
+curl https://packages.microsoft.com/config/rhel/8/prod.repo | tee /etc/yum.repos.d/microsoft.repo && writelog "installed Microsoft PowerShell repository"
 
-# # Google Chrome repo 
-# if dnf install fedora-workstation-repositories -y && dnf config-manager --set-enabled google-chrome; then
-#     echo -e "$(date +%T) installed Fedora Workstation/Third Party repositories" >> $logfile
-#     echo -e "$(date +%T) set Google Chrome repo as enabled" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR (FATAL): failed installing Fedora Workstation/Third Party repositories - exiting" >> $logfile
-#     exit 1
-# fi
+# Google Chrome repo 
+if dnf install fedora-workstation-repositories -y && dnf config-manager --set-enabled google-chrome; then
+    writelog "installed Fedora Workstation/Third Party repositories"
+    writelog "set Google Chrome repo as enabled"
+else
+    writelog "ERROR (FATAL): failed installing Fedora Workstation/Third Party repositories - exiting"
+    exit 1
+fi
 
-# # Microsoft Teams repo
-# cat > /etc/yum.repos.d/teams.repo << EOF
-# [teams]
-# name=teams
-# baseurl=https://packages.microsoft.com/yumrepos/ms-teams
-# enabled=1
-# gpgcheck=1
-# gpgkey=https://packages.microsoft.com/keys/microsoft.asc
-# EOF
-# if [[ -f /etc/yum.repos.d/teams.repo ]]; then
-#     echo -e "$(date +%T) installed Microsoft Teams repository" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR (FATAL): failed installing Microsoft Teams repository" >> $logfile
-# fi
-
-
-# ##### UPDATE EXISTING PACKAGES
-# clear
-# echo -e "\nUPDATE EXISTING PACKAGES\n"
-# dnf update -y
+# Microsoft Teams repo
+cat > /etc/yum.repos.d/teams.repo << EOF
+[teams]
+name=teams
+baseurl=https://packages.microsoft.com/yumrepos/ms-teams
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+EOF
+if [[ -f /etc/yum.repos.d/teams.repo ]]; then
+    writelog "installed Microsoft Teams repository"
+else
+    writelog "ERROR (FATAL): failed installing Microsoft Teams repository"
+fi
 
 
-# ##### UPDATE/INSTALL MULTIMEDIA CODECS
-# clear
-# echo -e "\nUPDATE & INSTALL MULTIMEDIA CODECS\n"
-
-# # requires RPM Fusion repos https://rpmfusion.org/Configuration/
-# dnf groupupdate multimedia --setop="install_weak_deps=False" -y
-# dnf groupupdate sound-and-video -y
+##### UPDATE EXISTING PACKAGES
+clear
+echo -e "\nUPDATE EXISTING PACKAGES\n"
+dnf update -y
 
 
-# ##### INSTALL FIRMWARE UPDATES
-# clear
-# echo -e "\nINSTALL FIRMWARE UPDATES\n"
+##### UPDATE/INSTALL MULTIMEDIA CODECS
+clear
+echo -e "\nUPDATE & INSTALL MULTIMEDIA CODECS\n"
 
-# # requires RPM Fusion tainted repos https://rpmfusion.org/Configuration/
-# dnf install \*-firmware -y
+# requires RPM Fusion repos
+dnf groupupdate multimedia --setop="install_weak_deps=False" -y
+dnf groupupdate sound-and-video -y
 
 
-# ##### INSTALL NEW PACKAGES
-# clear
-# echo -e "\nINSTALL NEW PACKAGES\n"
+##### INSTALL FIRMWARE UPDATES
+clear
+echo -e "\nINSTALL FIRMWARE UPDATES\n"
 
-# # array of packages to install from repos
-# declare -a packages=(
-#     "ansible"
-#     "darktable"
-#     "dconf-editor"
-#     "dnf-utils"
-#     "gnome-screenshot"
-#     "gnome-tweaks"
-#     "golang"
-#     "keepassxc"
-#     "nmap"
-#     "nss-tools"
-#     "papirus-icon-theme"
-#     "perl-Image-ExifTool"
-#     "pinta"
-#     "p7zip"
-#     "smartmontools"
-#     "sqlite"
-#     "terminator"
-#     "vim"
-#     "wireshark"
-#     "wodim"
-#     "yt-dlp"
-# )
+# requires RPM Fusion tainted repos
+dnf install \*-firmware -y
 
-# declare -a group_packages=(
-#     "--with-optional virtualization"
-# )
 
-# declare -a fusion_packages=(
-#     "fuse-exfat"
-#     "libdvdcss"
-#     "python-vlc"
-#     "vlc"
-# )
+##### INSTALL NEW PACKAGES
+clear
+echo -e "\nINSTALL NEW PACKAGES\n"
 
-# declare -a proprietary_packages=(
-#     "code"
-#     "google-chrome-stable"
-# )
+# array of packages to install from repos
+declare -a packages=(
+    "ansible"
+    "darktable"
+    "dconf-editor"
+    "dnf-utils"
+    "gnome-screenshot"
+    "gnome-tweaks"
+    "golang"
+    "keepassxc"
+    "nmap"
+    "nss-tools"
+    "papirus-icon-theme"
+    "perl-Image-ExifTool"
+    "pinta"
+    "p7zip"
+    "smartmontools"
+    "sqlite"
+    "terminator"
+    "vim"
+    "wireshark"
+    "wodim"
+    "yt-dlp"
+)
 
-# # install each package from each array in one command
-# if dnf install $(echo ${packages[@]} ${fusion_packages[@]} ${proprietary_packages[@]}) -y; then
-#     echo -e "$(date +%T) installed the following packages:
-# $(for i in ${packages[@]}; do echo "  $i"; done) \
-#     \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
-#     \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" >> $logfile
-# else
-#     # something failed
-#     echo -e "$(date +%T) ERROR: problems occurred when trying to install the following packages:
-# $(for i in ${packages[@]}; do echo "  $i"; done) \
-#     \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
-#     \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" >> $logfile
+declare -a group_packages=(
+    "--with-optional virtualization"
+)
+
+declare -a fusion_packages=(
+    "fuse-exfat"
+    "libdvdcss"
+    "python-vlc"
+    "vlc"
+)
+
+declare -a proprietary_packages=(
+    "code"
+    "google-chrome-stable"
+)
+
+# install each package from each array in one command
+if dnf install $(echo ${packages[@]} ${fusion_packages[@]} ${proprietary_packages[@]}) -y; then
+    #echo -e "$(date +%T) installed the following packages:
+    writelog "installed the following packages:
+$(for i in ${packages[@]}; do echo "  $i"; done) \
+    \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
+    \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" #>> $logfile
+else
+    # something failed
+    #echo -e "$(date +%T) ERROR: problems occurred when trying to install the following packages:
+    writelog "ERROR: problems occurred when trying to install the following packages:
+$(for i in ${packages[@]}; do echo "  $i"; done) \
+    \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
+    \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" #>> $logfile
     
-#     echo -e "\`-------------> check /var/log/dnf.log for more details" >> $logfile
-# fi
+    #echo -e "\`-------------> check /var/log/dnf.log for more details" >> $logfile
+    writelog "\`-------------> check /var/log/dnf.log for more details"
+fi
 
-# # install group packages
-# dnf groupinstall $(echo ${group_packages[@]}) -y && \
-# echo -e "$(date +%T) installed the following package groups:\n$(for i in "${group_packages[@]}"; do echo "  $i"; done)" >> $logfile
+# install group packages
+dnf groupinstall $(echo ${group_packages[@]}) -y && \
+#echo -e "$(date +%T) installed the following package groups:\n$(for i in "${group_packages[@]}"; do echo "  $i"; done)" >> $logfile
+writelog "installed the following package groups:\n$(for i in "${group_packages[@]}"; do echo "  $i"; done)"
 
 
 # ##### REMOVE UNWANTED PACKAGES
