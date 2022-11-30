@@ -32,234 +32,236 @@ DEVELOPMENT:
        https://unix.stackexchange.com/questions/307497/gnome-disable-sleep-on-lid-close/307498
 '
 
-if [[ $(id -u) -ne 0 ]]; then
-    echo -e "\nScript must be run as root! Exiting..."
-    exit 1
-fi
+# if [[ $(id -u) -ne 0 ]]; then
+#     echo -e "\nScript must be run as root! Exiting..."
+#     exit 1
+# fi
 
-logfile="/var/log/fedora37-gnome-post-install-script_$(date +"%Y-%m-%d@%H:%M").log"
-
-
-##### START LOG FILE
-echo -e "SCRIPT START: $(date +%c)" > $logfile
-start=$(date +%s)
-
-clear
-echo -e "WARNING: Do not use Fedora while the script runs.\n\n"
-
-##### SET HOSTNAME
-current_name=$(hostnamectl status --static)
-echo -e "Current hostname: $current_name"
-read -r -p $'\nWould you like to change the hostname? [y/n]\n(Default is no)\n' response
-response_lower=${response,,} #tolower
-if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
-    echo -e "\nSet hostname of this machine: "
-    read new_hostname
-    hostnamectl set-hostname $new_hostname && "$(date +%T) set hostname to $new_hostname" >> $logfile
-fi
+# logfile="/var/log/fedora37-gnome-post-install-script_$(date +"%Y-%m-%d@%H:%M").log"
 
 
-##### SET GIT INFO
-clear
-read -r -p $'\nWould you like to set your git account info? [y/n]\n(Default is no)\n' response
-response_lower=${response,,} #tolower
-if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
-    echo -e "\nSet git username: "
-    read git_user
+# ##### START LOG FILE
+# echo -e "SCRIPT START: $(date +%c)" > $logfile
+# start=$(date +%s)
+
+# clear
+# echo -e "WARNING: Do not use Fedora while the script runs.\n\n"
+
+# ##### SET HOSTNAME
+# current_name=$(hostnamectl status --static)
+# echo -e "Current hostname: $current_name"
+# read -r -p $'\nWould you like to change the hostname? [y/n]\n(Default is no)\n' response
+# response_lower=${response,,} #tolower
+# if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
+#     echo -e "\nSet hostname of this machine: "
+#     read new_hostname
+#     hostnamectl set-hostname $new_hostname && "$(date +%T) set hostname to $new_hostname" >> $logfile
+# fi
+
+
+# ##### SET GIT INFO
+# clear
+# read -r -p $'\nWould you like to set your git account info? [y/n]\n(Default is no)\n' response
+# response_lower=${response,,} #tolower
+# if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
+#     echo -e "\nSet git username: "
+#     read git_user
     
-    echo -e "\nSet git email: "
-    read git_email
+#     echo -e "\nSet git email: "
+#     read git_email
 
-# EOF offsetting is weird so it needs to be spaced to the left like this
-    gitfile="/home/$(logname)/.gitconfig"
-cat > $gitfile << EOF
-[user]
-    name = $git_user
-    email = $git_email
-EOF
-fi
-
-
-##### INSTALL REPOS
-# RPM Fusion free and nonfree https://rpmfusion.org/Configuration/
-clear
-echo -e "\nINSTALL NEW REPOSITORIES\n"
-
-if dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y; then
-    echo -e "$(date +%T) installed RPM Fusion free and nonfree repositories" >> $logfile
-else
-    echo -e "$(date +%T) ERROR (FATAL): failed installing RPM Fusion free and nonfree repositories - exiting" >> $logfile
-    exit 1
-fi
-
-# RPM Fusion tainted repos
-if dnf install rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted -y; then
-    echo -e "$(date +%T) installed RPM Fusion free tainted and nonfree tainted repositories" >> $logfile
-else
-    echo -e "$(date +%T) ERROR (FATAL): failed installing RPM Fusion free tainted and nonfree tainted repositories - exiting" >> $logfile
-    exit 1
-fi
-
-# Flatpak repo
-if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
-    echo -e "$(date +%T) installed Flathub repository" >> $logfile
-else
-    echo -e "$(date +%T) ERROR (FATAL): failed installing Flathub repository - exiting" >> $logfile
-    exit 1
-fi
-
-# Microsoft Visual Studio Code repo https://code.visualstudio.com/docs/setup/linux
-rpm --import https://packages.microsoft.com/keys/microsoft.asc && echo -e "$(date +%T) imported Microsoft signing key" >> $logfile
-
-if echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo; then
-    echo -e "$(date +%T) installed Visual Studio Code repository" >> $logfile
-else
-    echo -e "$(date +%T) ERROR (FATAL): failed installing Visual Studio Code repository - exiting" >> $logfile
-    exit 1
-fi
-
-# install Microsoft PowerShell repo
-curl https://packages.microsoft.com/config/rhel/8/prod.repo | tee /etc/yum.repos.d/microsoft.repo && echo -e "$(date +%T) installed Microsoft PowerShell repository" >> $logfile
-
-# Google Chrome repo 
-if dnf install fedora-workstation-repositories -y && dnf config-manager --set-enabled google-chrome; then
-    echo -e "$(date +%T) installed Fedora Workstation/Third Party repositories" >> $logfile
-    echo -e "$(date +%T) set Google Chrome repo as enabled" >> $logfile
-else
-    echo -e "$(date +%T) ERROR (FATAL): failed installing Fedora Workstation/Third Party repositories - exiting" >> $logfile
-    exit 1
-fi
-
-# Microsoft Teams repo
-cat > /etc/yum.repos.d/teams.repo << EOF
-[teams]
-name=teams
-baseurl=https://packages.microsoft.com/yumrepos/ms-teams
-enabled=1
-gpgcheck=1
-gpgkey=https://packages.microsoft.com/keys/microsoft.asc
-EOF
-if [[ -f /etc/yum.repos.d/teams.repo ]]; then
-    echo -e "$(date +%T) installed Microsoft Teams repository" >> $logfile
-else
-    echo -e "$(date +%T) ERROR (FATAL): failed installing Microsoft Teams repository" >> $logfile
-fi
+# # EOF offsetting is weird so it needs to be spaced to the left like this
+#     gitfile="/home/$(logname)/.gitconfig"
+# cat > $gitfile << EOF
+# [user]
+#     name = $git_user
+#     email = $git_email
+# EOF
+# fi
 
 
-##### UPDATE EXISTING PACKAGES
-clear
-echo -e "\nUPDATE EXISTING PACKAGES\n"
-dnf update -y
+# ##### INSTALL REPOS
+# # RPM Fusion free and nonfree https://rpmfusion.org/Configuration/
+# clear
+# echo -e "\nINSTALL NEW REPOSITORIES\n"
+
+# if dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+# https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y; then
+#     echo -e "$(date +%T) installed RPM Fusion free and nonfree repositories" >> $logfile
+# else
+#     echo -e "$(date +%T) ERROR (FATAL): failed installing RPM Fusion free and nonfree repositories - exiting" >> $logfile
+#     exit 1
+# fi
+
+# # RPM Fusion tainted repos
+# if dnf install rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted -y; then
+#     echo -e "$(date +%T) installed RPM Fusion free tainted and nonfree tainted repositories" >> $logfile
+# else
+#     echo -e "$(date +%T) ERROR (FATAL): failed installing RPM Fusion free tainted and nonfree tainted repositories - exiting" >> $logfile
+#     exit 1
+# fi
+
+# # Flatpak repo
+# if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+#     echo -e "$(date +%T) installed Flathub repository" >> $logfile
+# else
+#     echo -e "$(date +%T) ERROR (FATAL): failed installing Flathub repository - exiting" >> $logfile
+#     exit 1
+# fi
+
+# # Microsoft Visual Studio Code repo https://code.visualstudio.com/docs/setup/linux
+# rpm --import https://packages.microsoft.com/keys/microsoft.asc && echo -e "$(date +%T) imported Microsoft signing key" >> $logfile
+
+# if echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo; then
+#     echo -e "$(date +%T) installed Visual Studio Code repository" >> $logfile
+# else
+#     echo -e "$(date +%T) ERROR (FATAL): failed installing Visual Studio Code repository - exiting" >> $logfile
+#     exit 1
+# fi
+
+# # install Microsoft PowerShell repo
+# curl https://packages.microsoft.com/config/rhel/8/prod.repo | tee /etc/yum.repos.d/microsoft.repo && echo -e "$(date +%T) installed Microsoft PowerShell repository" >> $logfile
+
+# # Google Chrome repo 
+# if dnf install fedora-workstation-repositories -y && dnf config-manager --set-enabled google-chrome; then
+#     echo -e "$(date +%T) installed Fedora Workstation/Third Party repositories" >> $logfile
+#     echo -e "$(date +%T) set Google Chrome repo as enabled" >> $logfile
+# else
+#     echo -e "$(date +%T) ERROR (FATAL): failed installing Fedora Workstation/Third Party repositories - exiting" >> $logfile
+#     exit 1
+# fi
+
+# # Microsoft Teams repo
+# cat > /etc/yum.repos.d/teams.repo << EOF
+# [teams]
+# name=teams
+# baseurl=https://packages.microsoft.com/yumrepos/ms-teams
+# enabled=1
+# gpgcheck=1
+# gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+# EOF
+# if [[ -f /etc/yum.repos.d/teams.repo ]]; then
+#     echo -e "$(date +%T) installed Microsoft Teams repository" >> $logfile
+# else
+#     echo -e "$(date +%T) ERROR (FATAL): failed installing Microsoft Teams repository" >> $logfile
+# fi
 
 
-##### UPDATE/INSTALL MULTIMEDIA CODECS
-clear
-echo -e "\nUPDATE & INSTALL MULTIMEDIA CODECS\n"
-
-# requires RPM Fusion repos https://rpmfusion.org/Configuration/
-dnf groupupdate multimedia --setop="install_weak_deps=False" -y
-dnf groupupdate sound-and-video -y
+# ##### UPDATE EXISTING PACKAGES
+# clear
+# echo -e "\nUPDATE EXISTING PACKAGES\n"
+# dnf update -y
 
 
-##### INSTALL FIRMWARE UPDATES
-clear
-echo -e "\nINSTALL FIRMWARE UPDATES\n"
+# ##### UPDATE/INSTALL MULTIMEDIA CODECS
+# clear
+# echo -e "\nUPDATE & INSTALL MULTIMEDIA CODECS\n"
 
-# requires RPM Fusion tainted repos https://rpmfusion.org/Configuration/
-dnf install \*-firmware -y
+# # requires RPM Fusion repos https://rpmfusion.org/Configuration/
+# dnf groupupdate multimedia --setop="install_weak_deps=False" -y
+# dnf groupupdate sound-and-video -y
 
 
-##### INSTALL NEW PACKAGES
-clear
-echo -e "\nINSTALL NEW PACKAGES\n"
+# ##### INSTALL FIRMWARE UPDATES
+# clear
+# echo -e "\nINSTALL FIRMWARE UPDATES\n"
 
-# array of packages to install from repos
-declare -a packages=(
-    "ansible"
-    "darktable"
-    "dconf-editor"
-    "dnf-utils"
-    "gnome-screenshot"
-    "gnome-tweaks"
-    "golang"
-    "keepassxc"
-    "nmap"
-    "nss-tools"
-    "papirus-icon-theme"
-    "perl-Image-ExifTool"
-    "pinta"
-    "p7zip"
-    "smartmontools"
-    "sqlite"
-    "terminator"
-    "vim"
-    "wireshark"
-    "wodim"
-    "yt-dlp"
-)
+# # requires RPM Fusion tainted repos https://rpmfusion.org/Configuration/
+# dnf install \*-firmware -y
 
-declare -a group_packages=(
-    "--with-optional virtualization"
-)
 
-declare -a fusion_packages=(
-    "fuse-exfat"
-    "libdvdcss"
-    "python-vlc"
-    "vlc"
-)
+# ##### INSTALL NEW PACKAGES
+# clear
+# echo -e "\nINSTALL NEW PACKAGES\n"
 
-declare -a proprietary_packages=(
-    "code"
-    "google-chrome-stable"
-)
+# # array of packages to install from repos
+# declare -a packages=(
+#     "ansible"
+#     "darktable"
+#     "dconf-editor"
+#     "dnf-utils"
+#     "gnome-screenshot"
+#     "gnome-tweaks"
+#     "golang"
+#     "keepassxc"
+#     "nmap"
+#     "nss-tools"
+#     "papirus-icon-theme"
+#     "perl-Image-ExifTool"
+#     "pinta"
+#     "p7zip"
+#     "smartmontools"
+#     "sqlite"
+#     "terminator"
+#     "vim"
+#     "wireshark"
+#     "wodim"
+#     "yt-dlp"
+# )
 
-# install each package from each array in one command
-if dnf install $(echo ${packages[@]} ${fusion_packages[@]} ${proprietary_packages[@]}) -y; then
-    echo -e "$(date +%T) installed the following packages:
-$(for i in ${packages[@]}; do echo "  $i"; done) \
-    \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
-    \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" >> $logfile
-else
-    # something failed
-    echo -e "$(date +%T) ERROR: problems occurred when trying to install the following packages:
-$(for i in ${packages[@]}; do echo "  $i"; done) \
-    \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
-    \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" >> $logfile
+# declare -a group_packages=(
+#     "--with-optional virtualization"
+# )
+
+# declare -a fusion_packages=(
+#     "fuse-exfat"
+#     "libdvdcss"
+#     "python-vlc"
+#     "vlc"
+# )
+
+# declare -a proprietary_packages=(
+#     "code"
+#     "google-chrome-stable"
+# )
+
+# # install each package from each array in one command
+# if dnf install $(echo ${packages[@]} ${fusion_packages[@]} ${proprietary_packages[@]}) -y; then
+#     echo -e "$(date +%T) installed the following packages:
+# $(for i in ${packages[@]}; do echo "  $i"; done) \
+#     \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
+#     \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" >> $logfile
+# else
+#     # something failed
+#     echo -e "$(date +%T) ERROR: problems occurred when trying to install the following packages:
+# $(for i in ${packages[@]}; do echo "  $i"; done) \
+#     \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
+#     \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" >> $logfile
     
-    echo -e "\`-------------> check /var/log/dnf.log for more details" >> $logfile
-fi
+#     echo -e "\`-------------> check /var/log/dnf.log for more details" >> $logfile
+# fi
 
-# install group packages
-dnf groupinstall $(echo ${group_packages[@]}) -y && \
-echo -e "$(date +%T) installed the following package groups:\n$(for i in "${group_packages[@]}"; do echo "  $i"; done)" >> $logfile
+# # install group packages
+# dnf groupinstall $(echo ${group_packages[@]}) -y && \
+# echo -e "$(date +%T) installed the following package groups:\n$(for i in "${group_packages[@]}"; do echo "  $i"; done)" >> $logfile
 
 
-##### REMOVE UNWANTED PACKAGES
-clear
-echo -e "\nREMOVE UNWANTED PACKAGES\n"
-sleep 1
+# ##### REMOVE UNWANTED PACKAGES
+# clear
+# echo -e "\nREMOVE UNWANTED PACKAGES\n"
+# sleep 1
 
-declare -a unwanted_packages=(
-    "cheese"
-    "gnome-boxes"
-    "gnome-contacts"
-    "gnome-maps"
-    "rhythmbox"
-    "simple-scan"
-)
+# declare -a unwanted_packages=(
+#     "cheese"
+#     "gnome-boxes"
+#     "gnome-contacts"
+#     "gnome-maps"
+#     "rhythmbox"
+#     "simple-scan"
+# )
 
-# removes all packages with one command
-dnf remove $(echo ${unwanted_packages[@]}) -y && \
-echo -e "$(date +%T) removed the following packages:\n$(for i in ${unwanted_packages[@]}; do echo "  $i"; done)" >> $logfile
-dnf autoremove -y
-dnf clean all
+# # removes all packages with one command
+# dnf remove $(echo ${unwanted_packages[@]}) -y && \
+# echo -e "$(date +%T) removed the following packages:\n$(for i in ${unwanted_packages[@]}; do echo "  $i"; done)" >> $logfile
+# dnf autoremove -y
+# dnf clean all
 
 
 ##### GNOME 43 settings
-
 # https://help.gnome.org/admin/system-admin-guide/stable/dconf-custom-defaults.html.en
+
+# if Nautilus is open while this runs settings do not take
+pkill --full nautilus && sleep 1
 
 # desktop settings
 settings_file="/etc/dconf/db/local.d/01-gnome_settings"
