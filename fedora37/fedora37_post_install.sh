@@ -68,7 +68,6 @@ function writelog () {
 
 
 ##### START LOG FILE
-#echo -e "SCRIPT START: $(date +%c)" > $logfile
 writelog "SCRIPT START"
 start=$(date +%s)
 
@@ -83,7 +82,7 @@ response_lower=${response,,} #tolower
 if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
     echo -e "\nSet hostname of this machine: "
     read new_hostname
-    hostnamectl set-hostname $new_hostname && writelog "set hostname to $new_hostname" #"$(date +%T) set hostname to $new_hostname" >> $logfile
+    hostnamectl set-hostname $new_hostname && writelog "set hostname to $new_hostname"
 fi
 
 
@@ -138,7 +137,7 @@ else
 fi
 
 # Microsoft Visual Studio Code repo https://code.visualstudio.com/docs/setup/linux
-rpm --import https://packages.microsoft.com/keys/microsoft.asc && echo -e "$(date +%T) imported Microsoft signing key" >> $logfile
+rpm --import https://packages.microsoft.com/keys/microsoft.asc && writelog "imported Microsoft signing key"
 
 if echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo; then
     writelog "installed Visual Studio Code repository"
@@ -245,48 +244,44 @@ declare -a proprietary_packages=(
 
 # install each package from each array in one command
 if dnf install $(echo ${packages[@]} ${fusion_packages[@]} ${proprietary_packages[@]}) -y; then
-    #echo -e "$(date +%T) installed the following packages:
     writelog "installed the following packages:
 $(for i in ${packages[@]}; do echo "  $i"; done) \
     \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
-    \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" #>> $logfile
+    \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)"
 else
     # something failed
-    #echo -e "$(date +%T) ERROR: problems occurred when trying to install the following packages:
     writelog "ERROR: problems occurred when trying to install the following packages:
 $(for i in ${packages[@]}; do echo "  $i"; done) \
     \n$(for i in ${fusion_packages[@]}; do echo "  $i"; done) \
-    \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)" #>> $logfile
+    \n$(for i in ${proprietary_packages[@]}; do echo "  $i"; done)"
     
-    #echo -e "\`-------------> check /var/log/dnf.log for more details" >> $logfile
     writelog "\`-------------> check /var/log/dnf.log for more details"
 fi
 
 # install group packages
 dnf groupinstall $(echo ${group_packages[@]}) -y && \
-#echo -e "$(date +%T) installed the following package groups:\n$(for i in "${group_packages[@]}"; do echo "  $i"; done)" >> $logfile
 writelog "installed the following package groups:\n$(for i in "${group_packages[@]}"; do echo "  $i"; done)"
 
 
-# ##### REMOVE UNWANTED PACKAGES
-# clear
-# echo -e "\nREMOVE UNWANTED PACKAGES\n"
-# sleep 1
+##### REMOVE UNWANTED PACKAGES
+clear
+echo -e "\nREMOVE UNWANTED PACKAGES\n"
+sleep 1
 
-# declare -a unwanted_packages=(
-#     "cheese"
-#     "gnome-boxes"
-#     "gnome-contacts"
-#     "gnome-maps"
-#     "rhythmbox"
-#     "simple-scan"
-# )
+declare -a unwanted_packages=(
+    "cheese"
+    "gnome-boxes"
+    "gnome-contacts"
+    "gnome-maps"
+    "rhythmbox"
+    "simple-scan"
+)
 
-# # removes all packages with one command
-# dnf remove $(echo ${unwanted_packages[@]}) -y && \
-# echo -e "$(date +%T) removed the following packages:\n$(for i in ${unwanted_packages[@]}; do echo "  $i"; done)" >> $logfile
-# dnf autoremove -y
-# dnf clean all
+# removes all packages with one command
+dnf remove $(echo ${unwanted_packages[@]}) -y && \
+writelog "removed the following packages:\n$(for i in ${unwanted_packages[@]}; do echo "  $i"; done)"
+dnf autoremove -y
+dnf clean all
 
 
 ##### GNOME 43 settings
@@ -298,9 +293,9 @@ settings_file="/etc/dconf/db/local.d/01-gnome_settings"
 cp ./gnome_settings $settings_file
 # success test
 if [[ -f $settings_file ]]; then
-    echo -e "$(date +%T) GNOME: set default settings - config file is $settings_file" >> $logfile
+    writelog "GNOME: set default settings - config file is $settings_file"
 else
-    echo -e "$(date +%T) ERROR: attempted to create file $settings_file but did not succeed" >> $logfile
+    writelog "ERROR: attempted to create file $settings_file but did not succeed"
 fi
 
 
@@ -310,9 +305,9 @@ cp ./mimeapps.list $mimeapps
 chown $(logname):$(logname) $mimeapps
 # success test
 if [[ -f $mimeapps ]]; then
-    echo -e "$(date +%T) GNOME: set default settings for application file associations" >> $logfile
+    writelog "GNOME: set default settings for application file associations"
 else
-    echo -e "$(date +%T) ERROR: attempted to create file $mimeapps but did not succeed" >> $logfile
+    writelog "$(date +%T) ERROR: attempted to create file $mimeapps but did not succeed"
 fi
 
 sleep 1 && dconf update
@@ -323,7 +318,7 @@ sleep 1 && dconf update
 #https://www.cyberciti.biz/faq/how-to-use-sed-to-find-and-replace-text-in-files-in-linux-unix-shell/
 #https://unix.stackexchange.com/questions/307497/gnome-disable-sleep-on-lid-close
 logind="/etc/systemd/logind.conf"
-sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && echo -e "$(date +%T) set laptop lid switch settings in $logind" >> $logfile
+sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && writelog "set laptop lid switch settings in $logind"
 
 # success test
 # bad test - refine plz
@@ -348,8 +343,8 @@ export POWERSHELL_TELEMETRY_OPTOUT=1
 
 files=$(find /home -type f -name ".bash_profile")
 for i in $files; do
-  bash -c "echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $i" && echo -e "$(date +%T) set disable telemetry settings for .Net CLI" >> $logfile
-  bash -c "echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> $i" && echo -e "$(date +%T) set disable telemetry settings for PowerShell" >> $logfile
+  bash -c "echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $i" && writelog "set disable telemetry settings for .Net CLI"
+  bash -c "echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> $i" && writelog "set disable telemetry settings for PowerShell"
 done
 
 
@@ -361,16 +356,16 @@ chown --recursive $(logname):$(logname) "/home/$(logname)/.config/Code"
 
 # success test
 if grep -q "telemetry" $codefile; then
-    echo -e "$(date +%T) GNOME: set telemetry settings for Visual Studio Code" >> $logfile
+    writelog "GNOME: set telemetry settings for Visual Studio Code"
 else
-    echo -e "$(date +%T) ERROR: attempted to set telemetry settings for Visual Studio Code but did not succeed" >> $logfile
+    writelog "ERROR: attempted to set telemetry settings for Visual Studio Code but did not succeed"
 fi
 
 
 ##### SETUP GOLANG DEVELOPMENT ENVIRONMENT
 mkdir --parents "/home/$(logname)/go" && chown $(logname):$(logname) "/home/$(logname)/go"
 echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
-&& echo -e "$(date +%T) configured golang" >> $logfile
+&& writelog "configured golang"
 
 
 ##### FIREFOX SETTINGS
@@ -385,12 +380,12 @@ cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
 # this database, which contains bookmarks among many other things, will get rebuilt upon next Firefox launch
 rm $ff_profile_dir/places.sqlite
 
-echo -e "$(date +%T) set Firefox bookmarks" >> $logfile
+writelog "set Firefox bookmarks"
 ### need to put a failure clause in here - log file did not show that this had failed
 
 
 # FIREFOX ALL USER SETTINGS
-cp ./user.js $ff_profile_dir/ && echo -e "$(date +%T) set Firefox preferences via user.js" >> $logfile
+cp ./user.js $ff_profile_dir/ && writelog "set Firefox preferences via user.js"
 
 # one recursive chown on the directory will get all files we modified 
 chown --recursive $(logname):$(logname) $ff_profile_dir
@@ -423,8 +418,8 @@ rm -r /home/$(logname)/.cache/thumbnails/
 ##### REPORTING
 stop=$(date +%s)
 runtime=$((stop-start))
-echo -e "SCRIPT END: $(date +%c)" >> $logfile
-echo -e "RUN TIME: $runtime seconds (~$(($runtime / 60)) minutes)" >> $logfile
+writelog "SCRIPT END"
+writelog "RUN TIME: $runtime seconds (~$(($runtime / 60)) minutes)"
 #clear
 #cat $logfile
 
