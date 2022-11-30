@@ -21,6 +21,9 @@ Notes:
     - Terminator settings
         https://www.systutorials.com/docs/linux/man/5-terminator_config/
 
+    - Repository setup
+        RPM Fusion free and nonfree https://rpmfusion.org/Configuration/
+
     - youtube-dl replaced by yt-dlp (fork) due to abandonment and throttling
 
     - Have not really figured out all the laptop lid power options. Seeing inconsistent behavior on my laptop
@@ -50,61 +53,73 @@ if [[ $(id -u) -ne 0 ]]; then
     exit 1
 fi
 
-logfile="/var/log/fedora37-gnome-post-install-script_$(date +"%Y-%m-%d@%H:%M").log"
+
+##### LOGGING
+version=$(grep "VERSION_ID" /etc/os-release | cut -d "=" -f2)
+logfile="/var/log/fedora$(echo $version)-gnome-post-install-script_$(date +"%Y-%m-%dT%H:%M:%S%z").log"
+
+# create a logging function
+function writelog () {
+    iso8601_timestamp=$(date +"%Y-%m-%dT%H:%M:%S%z")
+    echo -e "$iso8601_timestamp $1" >> $logfile
+}
 
 
 ##### START LOG FILE
-echo -e "SCRIPT START: $(date +%c)" > $logfile
+#echo -e "SCRIPT START: $(date +%c)" > $logfile
+writelog "SCRIPT START"
 start=$(date +%s)
 
 clear
 echo -e "WARNING: Do not use Fedora while the script runs.\n\n"
 
-# ##### SET HOSTNAME
-# current_name=$(hostnamectl status --static)
-# echo -e "Current hostname: $current_name"
-# read -r -p $'\nWould you like to change the hostname? [y/n]\n(Default is no)\n' response
-# response_lower=${response,,} #tolower
-# if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
-#     echo -e "\nSet hostname of this machine: "
-#     read new_hostname
-#     hostnamectl set-hostname $new_hostname && "$(date +%T) set hostname to $new_hostname" >> $logfile
-# fi
+##### SET HOSTNAME
+current_name=$(hostnamectl status --static)
+echo -e "Current hostname: $current_name"
+read -r -p $'\nWould you like to change the hostname? [y/n]\n(Default is no)\n' response
+response_lower=${response,,} #tolower
+if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
+    echo -e "\nSet hostname of this machine: "
+    read new_hostname
+    hostnamectl set-hostname $new_hostname && writelog "set hostname to $new_hostname" #"$(date +%T) set hostname to $new_hostname" >> $logfile
+fi
 
 
-# ##### SET GIT INFO
-# clear
-# read -r -p $'\nWould you like to set your git account info? [y/n]\n(Default is no)\n' response
-# response_lower=${response,,} #tolower
-# if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
-#     echo -e "\nSet git username: "
-#     read git_user
+##### SET GIT INFO
+clear
+read -r -p $'\nWould you like to set your git account info? [y/n]\n(Default is no)\n' response
+response_lower=${response,,} #tolower
+if [[ "$response_lower" =~ ^(yes|y)$ ]]; then
+    echo -e "\nSet git username: "
+    read git_user
     
-#     echo -e "\nSet git email: "
-#     read git_email
+    echo -e "\nSet git email: "
+    read git_email
 
-# # EOF offsetting is weird so it needs to be spaced to the left like this
-#     gitfile="/home/$(logname)/.gitconfig"
-# cat > $gitfile << EOF
-# [user]
-#     name = $git_user
-#     email = $git_email
-# EOF
-# fi
+# EOF offsetting is weird so it needs to be spaced to the left like this
+    gitfile="/home/$(logname)/.gitconfig"
+cat > $gitfile << EOF
+[user]
+    name = $git_user
+    email = $git_email
+EOF
+fi
 
 
-# ##### INSTALL REPOS
-# # RPM Fusion free and nonfree https://rpmfusion.org/Configuration/
-# clear
-# echo -e "\nINSTALL NEW REPOSITORIES\n"
+##### INSTALL REPOS
+# RPM Fusion free and nonfree
+clear
+echo -e "\nINSTALL NEW REPOSITORIES\n"
 
-# if dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-# https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y; then
-#     echo -e "$(date +%T) installed RPM Fusion free and nonfree repositories" >> $logfile
-# else
-#     echo -e "$(date +%T) ERROR (FATAL): failed installing RPM Fusion free and nonfree repositories - exiting" >> $logfile
-#     exit 1
-# fi
+if dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y; then
+    #echo -e "$(date +%T) installed RPM Fusion free and nonfree repositories" >> $logfile
+    writelog "installed RPM Fusion free and nonfree repositories"
+else
+    #echo -e "$(date +%T) ERROR (FATAL): failed installing RPM Fusion free and nonfree repositories - exiting" >> $logfile
+    writelog "ERROR (FATAL): failed installing RPM Fusion free and nonfree repositories - exiting"
+    exit 1
+fi
 
 # # RPM Fusion tainted repos
 # if dnf install rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted -y; then

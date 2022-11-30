@@ -3,7 +3,7 @@
 // Still need to remove "Ask to save logins and passwords for websites", "Autofill credit cards"
 
 user_pref("browser.startup.page", 0);
-user_pref("browser.startup.homepage", "https://www.google.com");
+user_pref("browser.startup.homepage", "https://www.google.com"); // NEEDS UPDATE - DOES NOT WORK?
 user_pref("browser.newtabpage.enabled", false);
 user_pref("browser.newtabpage.activity-stream.showSponsored", false);
 user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
