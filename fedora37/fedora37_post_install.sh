@@ -356,6 +356,7 @@ echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
 ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -type d -name "*default-release")
 cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
 
+
 ### NEEDS UPDATE
 # does not work when Firefox was left open
 # kill firefox process before proceeding
@@ -369,6 +370,10 @@ echo -e "$(date +%T) set Firefox bookmarks" >> $logfile
 # https://github.com/arkenfox/user.js
 # http://kb.mozillazine.org/User.js_file
 cp ./user.js $ff_profile_dir/ && echo -e "$(date +%T) set Firefox preferences via user.js" >> $logfile
+
+
+# one recursive chown on the directory will get all files we modified 
+chown --recursive $(logname):$(logname) $ff_profile_dir
 
 # FIREFOX INSTALL CERTIFICATES
 
