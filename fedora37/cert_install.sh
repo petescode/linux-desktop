@@ -1,4 +1,7 @@
 #!/bin/bash
+# after getting all these commands working, I realized that Fedora37 works natively with CAC reader
+#    as well as trusts the certificates that DoD is using
+#    so this appears to all be pointless now
 
 # from Tools at: https://public.cyber.mil/pki-pke/rss-2/
 disa_tools_rss="https://public.cyber.mil/?call_custom_simple_rss=1&csrp_tax_name=download_type&csrp_tax_term_id=680"

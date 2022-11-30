@@ -26,15 +26,21 @@ Notes:
         RPM Fusion repos: https://rpmfusion.org/Configuration/
         RPM Fusion tainted repos: https://rpmfusion.org/Configuration/
 
+    - DOD certificates appear to no longer be necessary; CAC is already recognized with no software setup and 
+        both Firefox and Chrome recognize the certificates being used by the DoD as valid
+
     - youtube-dl replaced by yt-dlp (fork) due to abandonment and throttling
 
     - Have not really figured out all the laptop lid power options. Seeing inconsistent behavior on my laptop
 
-    - clamav-install.sh and cert-install.sh are currently benign; for future development
-
 DEVELOPMENT:
-    - need to create a separate script or at least function for writing to log file to clean up all this code
-    - CAC support
+    - if FF not open first, bookmarks not working
+        nope, actually just not working at all now, even if open
+
+    - check messages at end with clear script off, need if conditionals
+
+    - use environment file to load hostname and git settings
+
     - clamav install
     - power settings
         - lid close action
@@ -211,8 +217,10 @@ declare -a packages=(
     "gnome-tweaks"
     "golang"
     "keepassxc"
+    "lynx"
     "nmap"
     "nss-tools"
+    "openssl"
     "papirus-icon-theme"
     "perl-Image-ExifTool"
     "pinta"
@@ -369,6 +377,7 @@ echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
 
 
 ##### FIREFOX SETTINGS
+firefox & && sleep 10
 # kill firefox process before proceeding or changes will not work
 pkill --full firefox && sleep 1
 
@@ -377,8 +386,23 @@ pkill --full firefox && sleep 1
 ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -type d -name "*default-release")
 cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
 
+if [[ -f $ff_profile_dir/bookmarkbackups/bookmarks-2022-11-13.jsonlz4 ]]; then
+    writelog "imported Firefox bookmarks"
+else
+    writelog "ERROR (FATAL): failed to imported Firefox bookmarks"
+fi
+
 # this database, which contains bookmarks among many other things, will get rebuilt upon next Firefox launch
 rm $ff_profile_dir/places.sqlite
+
+if [[ -f $ff_profile_dir/places.sqlite ]]; then
+    rm $ff_profile_dir/places.sqlite
+    writelog "removed default sqlite database that contains bookmarks"
+else
+    writelog "ERROR (FATAL): failed to remove default sqlite database that contains bookmarks"
+fi
+
+# this one ^
 
 writelog "set Firefox bookmarks"
 ### need to put a failure clause in here - log file did not show that this had failed
@@ -412,7 +436,10 @@ rm /home/$(logname)/.config/dconf/user
 
 # have to delete the thumbnail cache or changes will not take effect
 # thumbnail directory does not get created until a preview is generated in Nautilus for the first time
-rm -r /home/$(logname)/.cache/thumbnails/
+
+if [[ -d /home/$(logname)/.cache/thumbnails/ ]]; then
+    rm -r /home/$(logname)/.cache/thumbnails/
+fi
 
 
 ##### REPORTING
