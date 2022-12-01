@@ -377,7 +377,7 @@ echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
 
 
 ##### FIREFOX SETTINGS
-firefox &
+bash -c "firefox &"
 sleep 10
 # kill firefox process before proceeding or changes will not work
 pkill --full firefox && sleep 1
