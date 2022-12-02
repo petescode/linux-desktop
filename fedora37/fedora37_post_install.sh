@@ -377,14 +377,22 @@ echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
 
 
 ##### FIREFOX SETTINGS
-bash -c "firefox &"
-sleep 10
+# NEEDS UPDATE
+
+# https://wiki.mozilla.org/Firefox/CommandLineOptions
+# for --headless suggestion which seems to fix DISPLAY environment variable issues:
+#   https://stackoverflow.com/questions/70979924/error-no-display-environment-variable-specified-selenium-webdriver-options-hav
+runuser --login $(logname) --command "/usr/bin/firefox --headless -CreateProfile $(logname)"
+sleep 2
 # kill firefox process before proceeding or changes will not work
-pkill --full firefox && sleep 1
+pkill --full firefox && sleep 2
 
 # FIREFOX BOOKMARKS
 # If places.sqlite is missing then Firefox will rebuild the bookmarks from the most recent JSON backup in the bookmarkbackups folder 
-ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -type d -name "*default-release")
+#ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -type d -name "*default-release")
+#cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
+ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -maxdepth 1 -type d -name "*.$(logname)")
+mkdir $ff_profile_dir/bookmarkbackups
 cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
 
 if [[ -f $ff_profile_dir/bookmarkbackups/bookmarks-2022-11-13.jsonlz4 ]]; then
@@ -393,20 +401,23 @@ else
     writelog "ERROR (FATAL): failed to imported Firefox bookmarks"
 fi
 
-# this database, which contains bookmarks among many other things, will get rebuilt upon next Firefox launch
-rm $ff_profile_dir/places.sqlite
 
-if [[ -f $ff_profile_dir/places.sqlite ]]; then
-    rm $ff_profile_dir/places.sqlite
-    writelog "removed default sqlite database that contains bookmarks"
-else
-    writelog "ERROR (FATAL): failed to remove default sqlite database that contains bookmarks"
-fi
 
-# this one ^
+# # this database, which contains bookmarks among many other things, will get rebuilt upon next Firefox launch
+# rm $ff_profile_dir/places.sqlite
 
-writelog "set Firefox bookmarks"
-### need to put a failure clause in here - log file did not show that this had failed
+# if [[ -f $ff_profile_dir/places.sqlite ]]; then
+#     rm $ff_profile_dir/places.sqlite
+#     writelog "removed default sqlite database that contains bookmarks"
+# else
+#     writelog "ERROR (FATAL): failed to remove default sqlite database that contains bookmarks"
+# fi
+
+# # this one ^
+
+# writelog "set Firefox bookmarks"
+# ### need to put a failure clause in here - log file did not show that this had failed
+
 
 
 # FIREFOX ALL USER SETTINGS
