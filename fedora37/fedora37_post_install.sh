@@ -374,7 +374,7 @@ echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
 
 ##### FIREFOX SETTINGS
 runuser --login $(logname) --command "/usr/bin/firefox --headless" &
-sleep 5
+sleep 10
 # kill firefox process before proceeding or changes will not work
 if pgrep firefox; then
     pkill --full firefox && sleep 2
@@ -390,7 +390,6 @@ if [[ -f $ff_profile_dir/bookmarkbackups/bookmarks-2022-11-13.jsonlz4 ]]; then
 else
     writelog "ERROR: failed to imported Firefox bookmarks"
 fi
-
 
 # this database, which contains bookmarks among many other things, will get rebuilt upon next Firefox launch
 if [[ -f $ff_profile_dir/places.sqlite ]]; then
