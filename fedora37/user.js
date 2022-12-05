@@ -12,10 +12,12 @@ user_pref("browser.newtabpage.activity-stream.default.sites", "");
 // Enable DRM content playing
 user_pref("media.eme.enabled", true);
 
-// Passwords
+// Autofill settings
 user_pref("signon.autofillForms", false);
 user_pref("signon.formlessCapture.enabled", false);
 user_pref("network.auth.subresource-http-auth-allow", 1);
+user_pref("extensions.formautofill.creditCards.enabled", false);
+user_pref("signon.rememberSignons", false);
 
 // Recommendations
 user_pref("extensions.getAddons.showPane", false);
