@@ -15,8 +15,11 @@ Notes:
     - Firefox settings
         https://github.com/arkenfox/user.js
         http://kb.mozillazine.org/User.js_file
+        https://wiki.mozilla.org/Firefox/CommandLineOptions
         
         Format of the Firefox bookmarks file MUST conform to "bookmarks-<date>.jsonlz4" or it will not be found
+        Firefox builds user profiles upon first launch. Must ensure it has been launched once, then modify the default files that
+            are built out in /home/<user>/.mozilla/firefox
 
     - Terminator settings
         https://www.systutorials.com/docs/linux/man/5-terminator_config/
@@ -377,24 +380,18 @@ echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
 
 
 ##### FIREFOX SETTINGS
-# NEEDS UPDATE
 
-# https://wiki.mozilla.org/Firefox/CommandLineOptions
-# for --headless suggestion which seems to fix DISPLAY environment variable issues:
-#   https://stackoverflow.com/questions/70979924/error-no-display-environment-variable-specified-selenium-webdriver-options-hav
-#runuser --login $(logname) --command "/usr/bin/firefox --headless -CreateProfile $(logname)"
-runuser --login $(logname) --command "/usr/bin/firefox --headless" &
+##### NEEDS UPDATE
+# also, use if statement to make sure firefox is not already running?
+runuser --login $(logname) --command "/usr/bin/firefox --headless" & 2>&1
 sleep 10
 # kill firefox process before proceeding or changes will not work
 pkill --full firefox && sleep 2
 
 # FIREFOX BOOKMARKS
 # If places.sqlite is missing then Firefox will rebuild the bookmarks from the most recent JSON backup in the bookmarkbackups folder 
-ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -type d -name "*default-release")
+ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -maxdepth 1 -type d -name "*default-release")
 cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
-#ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -maxdepth 1 -type d -name "*.$(logname)")
-#mkdir $ff_profile_dir/bookmarkbackups
-#cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
 
 if [[ -f $ff_profile_dir/bookmarkbackups/bookmarks-2022-11-13.jsonlz4 ]]; then
     writelog "imported Firefox bookmarks"
@@ -403,23 +400,19 @@ else
 fi
 
 
-###### all this does not work, user profile is there but it still creates and loads a default-release profile instead upon first user launch
+# this database, which contains bookmarks among many other things, will get rebuilt upon next Firefox launch
+rm $ff_profile_dir/places.sqlite
 
+if [[ -f $ff_profile_dir/places.sqlite ]]; then
+    rm $ff_profile_dir/places.sqlite
+    writelog "removed default sqlite database that contains bookmarks"
+else
+    writelog "ERROR (FATAL): failed to remove default sqlite database that contains bookmarks"
+fi
 
-# # this database, which contains bookmarks among many other things, will get rebuilt upon next Firefox launch
-# rm $ff_profile_dir/places.sqlite
-
-# if [[ -f $ff_profile_dir/places.sqlite ]]; then
-#     rm $ff_profile_dir/places.sqlite
-#     writelog "removed default sqlite database that contains bookmarks"
-# else
-#     writelog "ERROR (FATAL): failed to remove default sqlite database that contains bookmarks"
-# fi
-
-# # this one ^
-
-# writelog "set Firefox bookmarks"
-# ### need to put a failure clause in here - log file did not show that this had failed
+##### NEEDS UPDATE
+writelog "set Firefox bookmarks"
+### need to put a failure clause in here - log file did not show that this had failed
 
 
 
