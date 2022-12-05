@@ -382,8 +382,9 @@ echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
 # https://wiki.mozilla.org/Firefox/CommandLineOptions
 # for --headless suggestion which seems to fix DISPLAY environment variable issues:
 #   https://stackoverflow.com/questions/70979924/error-no-display-environment-variable-specified-selenium-webdriver-options-hav
-runuser --login $(logname) --command "/usr/bin/firefox --headless -CreateProfile $(logname)"
-sleep 2
+#runuser --login $(logname) --command "/usr/bin/firefox --headless -CreateProfile $(logname)"
+runuser --login $(logname) --command "/usr/bin/firefox --headless" &
+sleep 10
 # kill firefox process before proceeding or changes will not work
 pkill --full firefox && sleep 2
 
@@ -401,6 +402,8 @@ else
     writelog "ERROR (FATAL): failed to imported Firefox bookmarks"
 fi
 
+
+###### all this does not work, user profile is there but it still creates and loads a default-release profile instead upon first user launch
 
 
 # # this database, which contains bookmarks among many other things, will get rebuilt upon next Firefox launch
