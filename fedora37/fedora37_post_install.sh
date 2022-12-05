@@ -35,7 +35,9 @@ Notes:
     - youtube-dl replaced by yt-dlp (fork) due to abandonment and throttling
 
 DEVELOPMENT:
-    - use environment file to load hostname and git settings
+    - use environment file to load hostname and git settings maybe
+
+    - setup Google Chrome settings
 
     - clamav install
     - power settings
@@ -322,9 +324,9 @@ sleep 1 && dconf update
 #https://www.cyberciti.biz/faq/how-to-use-sed-to-find-and-replace-text-in-files-in-linux-unix-shell/
 #https://unix.stackexchange.com/questions/307497/gnome-disable-sleep-on-lid-close
 logind="/etc/systemd/logind.conf"
-sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && writelog "set laptop lid switch settings in $logind"
+sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind
 
-if [[ egrep "^HandleLidSwitch=ignore" $logind ]]; then
+if egrep --quiet "^HandleLidSwitch=ignore" $logind; then
     writelog "set laptop lid close settings in $logind" >> $logfile
 else
     writelog "ERROR: attempted to modify file $logind but did not succeed" >> $logfile
@@ -415,8 +417,6 @@ chown --recursive $(logname):$(logname) $ff_profile_dir
 
 
 ##### CHROME SETTINGS
-# CHROME INSTALL CERTIFICATES
-# need to do an if exists logic on this, or this script cant be run multiple times in a row
 
 
 ##### VM DIRECTORY SETUP
