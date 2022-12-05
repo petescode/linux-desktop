@@ -34,14 +34,7 @@ Notes:
 
     - youtube-dl replaced by yt-dlp (fork) due to abandonment and throttling
 
-    - Have not really figured out all the laptop lid power options. Seeing inconsistent behavior on my laptop
-
 DEVELOPMENT:
-    - if FF not open first, bookmarks not working
-        nope, actually just not working at all now, even if open
-
-    - check messages at end with clear script off, need if conditionals
-
     - use environment file to load hostname and git settings
 
     - clamav install
@@ -71,8 +64,7 @@ logfile="/var/log/fedora$(echo $version)-gnome-post-install-script_$(date +"%Y-%
 
 # create a logging function
 function writelog () {
-    iso8601_timestamp=$(date +"%Y-%m-%dT%H:%M:%S%z")
-    echo -e "$iso8601_timestamp $1" >> $logfile
+    echo -e "$(date +"%Y-%m-%dT%H:%M:%S%z") $1" >> $logfile
 }
 
 
@@ -82,6 +74,7 @@ start=$(date +%s)
 
 clear
 echo -e "WARNING: Do not use Fedora while the script runs.\n\n"
+
 
 ##### SET HOSTNAME
 current_name=$(hostnamectl status --static)
@@ -179,7 +172,7 @@ EOF
 if [[ -f /etc/yum.repos.d/teams.repo ]]; then
     writelog "installed Microsoft Teams repository"
 else
-    writelog "ERROR (FATAL): failed installing Microsoft Teams repository"
+    writelog "ERROR: failed installing Microsoft Teams repository"
 fi
 
 
@@ -318,7 +311,7 @@ chown $(logname):$(logname) $mimeapps
 if [[ -f $mimeapps ]]; then
     writelog "GNOME: set default settings for application file associations"
 else
-    writelog "$(date +%T) ERROR: attempted to create file $mimeapps but did not succeed"
+    writelog "ERROR: attempted to create file $mimeapps but did not succeed"
 fi
 
 sleep 1 && dconf update
@@ -331,13 +324,11 @@ sleep 1 && dconf update
 logind="/etc/systemd/logind.conf"
 sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' $logind && writelog "set laptop lid switch settings in $logind"
 
-# success test
-# bad test - refine plz
-#if [[ egrep "^HandleLidSwitch" $logind ]]; then
-#    echo -e "$(date +%T) set laptop lid close settings in $logind" >> $logfile
-#else
-#    echo -e "$(date +%T) ERROR: attempted to modify file $logind but did not succeed" >> $logfile
-#fi
+if [[ egrep "^HandleLidSwitch=ignore" $logind ]]; then
+    writelog "set laptop lid close settings in $logind" >> $logfile
+else
+    writelog "ERROR: attempted to modify file $logind but did not succeed" >> $logfile
+fi
 
 
 ##### TERMINATOR SETTINGS
@@ -380,13 +371,13 @@ echo 'export GOPATH=$HOME/go' >> "/home/$(logname)/.bashrc" \
 
 
 ##### FIREFOX SETTINGS
-
-##### NEEDS UPDATE
-# also, use if statement to make sure firefox is not already running?
-runuser --login $(logname) --command "/usr/bin/firefox --headless" & 2>&1
+runuser --login $(logname) --command "/usr/bin/firefox --headless" &
+clear
 sleep 10
 # kill firefox process before proceeding or changes will not work
-pkill --full firefox && sleep 2
+if pgrep firefox; then
+    pkill --full firefox && sleep 2
+fi
 
 # FIREFOX BOOKMARKS
 # If places.sqlite is missing then Firefox will rebuild the bookmarks from the most recent JSON backup in the bookmarkbackups folder 
@@ -396,7 +387,7 @@ cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
 if [[ -f $ff_profile_dir/bookmarkbackups/bookmarks-2022-11-13.jsonlz4 ]]; then
     writelog "imported Firefox bookmarks"
 else
-    writelog "ERROR (FATAL): failed to imported Firefox bookmarks"
+    writelog "ERROR: failed to imported Firefox bookmarks"
 fi
 
 
@@ -405,26 +396,22 @@ rm $ff_profile_dir/places.sqlite
 
 if [[ -f $ff_profile_dir/places.sqlite ]]; then
     rm $ff_profile_dir/places.sqlite
-    writelog "removed default sqlite database that contains bookmarks"
+    writelog "removed default sqlite database that contains default bookmarks"
 else
-    writelog "ERROR (FATAL): failed to remove default sqlite database that contains bookmarks"
+    writelog "ERROR: failed to remove default sqlite database that contains default bookmarks"
 fi
 
-##### NEEDS UPDATE
-writelog "set Firefox bookmarks"
-### need to put a failure clause in here - log file did not show that this had failed
-
-
-
 # FIREFOX ALL USER SETTINGS
-cp ./user.js $ff_profile_dir/ && writelog "set Firefox preferences via user.js"
+cp ./user.js $ff_profile_dir/
+
+if [[ -f $ff_profile_dir/user.js ]]; then
+    writelog "set custom user settings"
+else
+    writelog "ERROR: failed to copy custom user settings file 'user.js'"
+fi
 
 # one recursive chown on the directory will get all files we modified 
 chown --recursive $(logname):$(logname) $ff_profile_dir
-
-
-# FIREFOX INSTALL CERTIFICATES
-
 
 
 ##### CHROME SETTINGS
@@ -433,8 +420,15 @@ chown --recursive $(logname):$(logname) $ff_profile_dir
 
 
 ##### VM DIRECTORY SETUP
-mkdir --parents "/home/$(logname)/Documents/VMs/ISOs"
-chown --recursive $(logname):$(logname) "/home/$(logname)/Documents/VMs"
+vm_dirs="/home/$(logname)/Documents/VMs/ISOs"
+mkdir --parents $vm_dirs
+chown --recursive $(logname):$(logname) $vm_dirs
+
+if [[ -d $vm_dirs ]]; then
+    writelog "created VM directories"
+else
+    writelog "ERROR: failed to create VM directories at $vm_dirs"
+fi
 
 
 ##### CLEANUP
@@ -444,7 +438,6 @@ rm /home/$(logname)/.config/dconf/user
 
 # have to delete the thumbnail cache or changes will not take effect
 # thumbnail directory does not get created until a preview is generated in Nautilus for the first time
-
 if [[ -d /home/$(logname)/.cache/thumbnails/ ]]; then
     rm -r /home/$(logname)/.cache/thumbnails/
 fi
@@ -455,8 +448,8 @@ stop=$(date +%s)
 runtime=$((stop-start))
 writelog "SCRIPT END"
 writelog "RUN TIME: $runtime seconds (~$(($runtime / 60)) minutes)"
-#clear
-#cat $logfile
+clear
+cat $logfile
 
 
 ##### REBOOT
