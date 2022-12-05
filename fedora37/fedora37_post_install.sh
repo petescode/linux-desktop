@@ -390,11 +390,11 @@ pkill --full firefox && sleep 2
 
 # FIREFOX BOOKMARKS
 # If places.sqlite is missing then Firefox will rebuild the bookmarks from the most recent JSON backup in the bookmarkbackups folder 
-#ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -type d -name "*default-release")
-#cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
-ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -maxdepth 1 -type d -name "*.$(logname)")
-mkdir $ff_profile_dir/bookmarkbackups
+ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -type d -name "*default-release")
 cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
+#ff_profile_dir=$(find "/home/$(logname)/.mozilla/firefox" -maxdepth 1 -type d -name "*.$(logname)")
+#mkdir $ff_profile_dir/bookmarkbackups
+#cp ./bookmarks-2022-11-13.jsonlz4 $ff_profile_dir/bookmarkbackups/
 
 if [[ -f $ff_profile_dir/bookmarkbackups/bookmarks-2022-11-13.jsonlz4 ]]; then
     writelog "imported Firefox bookmarks"
