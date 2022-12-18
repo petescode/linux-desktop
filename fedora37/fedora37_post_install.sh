@@ -39,6 +39,21 @@ DEVELOPMENT:
 
     - setup Google Chrome settings
 
+        Setting Chrome policies:
+        https://support.google.com/chrome/a/answer/9027408?hl=en&ref_topic=9025817
+
+        chrome://policy/
+
+        Super helpful for understanding precedence of policy files:
+        https://www.chromium.org/developers/design-documents/preferences/
+
+        place policy files here: /etc/opt/chrome/policies/recommended/
+        bookmarks file is here: .config/google-chrome/Default/Bookmarks
+
+        For exploring policy keys:
+        https://chromeenterprise.google/policies/
+
+
     - clamav install
     - power settings
         - lid close action
@@ -413,6 +428,13 @@ chown --recursive $(logname):$(logname) $ff_profile_dir
 
 
 ##### CHROME SETTINGS
+cp ./chrome_policies.json /etc/opt/chrome/policies/recommended/
+
+if [[ -f /etc/opt/chrome/policies/recommended/chrome_policies.json ]]; then
+    writelog "set Chrome settings"
+else
+    writelog "ERROR: failed to copy Chrome settings file 'chrome_policies.json'"
+fi
 
 
 ##### VM DIRECTORY SETUP
