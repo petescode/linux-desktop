@@ -438,8 +438,8 @@ fi
 
 
 ##### VM DIRECTORY SETUP
-vm_dirs="/home/$(logname)/Documents/VMs/ISOs"
-mkdir --parents $vm_dirs
+vm_dirs="/home/$(logname)/Documents/VMs"
+mkdir --parents "$vm_dirs/ISOs"
 chown --recursive $(logname):$(logname) $vm_dirs
 
 if [[ -d $vm_dirs ]]; then
