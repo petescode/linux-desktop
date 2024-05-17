@@ -1,4 +1,7 @@
-# Linux Desktop
+# Archive notice
+This repo has been archived. I migrated this project to Ansible, and the new repo is here: https://github.com/petescode/fedora-workstation
+
+## Linux Desktop
 For code that automates tasks for the Linux Desktop - primarily Fedora GNOME.
 Initial setup, repo management, package installation, GNOME preferences, etc.
 ## Fedora 37
